@@ -1,36 +1,211 @@
-# This is a basic workflow to help you get started with Actions
+#云编译公用核心
+name: OWRT-CORE-MO
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+  #公用核心标识
+  workflow_call:
+    inputs:
+      OWRT_TARGET:
+        required: true
+        type: string
+      OWRT_THEME:
+        required: true
+        type: string
+      OWRT_NAME:
+        required: true
+        type: string
+      OWRT_URL:
+        required: true
+        type: string
+      OWRT_PW:
+        required: true
+        type: string
+      OWRT_IP:
+        required: true
+        type: string
+      OWRT_CFG:
+        required: true
+        type: string
+      OWRT_BRANCH:
+        required: true
+        type: string
+      OWRT_TYPE:
+        required: true
+        type: string
+      OWRT_LINUX:
+        required: true
+        type: string     
+env:
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+  OWRT_TARGET: ${{inputs.OWRT_TARGET}}
+  OWRT_THEME: ${{inputs.OWRT_THEME}}
+  OWRT_NAME: ${{inputs.OWRT_NAME}}
+  OWRT_URL: ${{inputs.OWRT_URL}}
+  OWRT_PW: ${{inputs.OWRT_PW}}
+  OWRT_IP: ${{inputs.OWRT_IP}}
+  OWRT_CFG: ${{inputs.OWRT_CFG}}
+  OWRT_BRANCH: ${{inputs.OWRT_BRANCH}}
+  OWRT_TYPE: ${{inputs.OWRT_TYPE}}
+  OWRT_LINUX: ${{inputs.OWRT_LINUX}}
+  TZ: Asia/Shanghai
+  #USE_CACHEWRTBUILD: true
+  
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+  owrt_core_mo:
+    runs-on: ubuntu-22.04
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - name: 项目检查
+        uses: actions/checkout@main
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: 初始化编译环境
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          sudo -E apt-get -qq update
+          sudo -E apt-get -qq install ack antlr3 asciidoc autoconf automake autopoint \
+          binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler ecj \
+          fakeroot fastjar flex gawk gettext genisoimage git gnutls-dev gperf haveged help2man \
+          intltool jq libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev \
+          libmpfr-dev libncurses5-dev libncursesw5 libncursesw5-dev libreadline-dev libssl-dev \
+          libtool libyaml-dev libz-dev lrzsz msmtp nano ninja-build p7zip p7zip-full patch pkgconf \
+          python2 libpython3-dev python3 python3-pip python3-ply python3-docutils python3-pyelftools \
+          qemu-utils quilt re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs unzip \
+          vim wget xmlto xxd zlib1g-dev dos2unix
+          sudo -E apt-get -qq install gcc-9 g++-9 gcc-9-multilib g++-9-multilib golang
+          sudo -E apt-get -qq install clang-15 lld-15 libclang-15-dev nodejs yarn
+          sudo pip3 config set global.index-url "https://mirrors.aliyun.com/pypi/simple/"
+          sudo pip3 config set install.trusted-host "https://mirrors.aliyun.com"          
+          sudo -E apt-get -qq purge azure-cli ghc* zulu* llvm* firefox powershell openjdk* dotnet* google* mysql* php* android*
+          sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo -E apt-get -qq autoremove --purge
+          sudo -E apt-get -qq clean
+          sudo -E timedatectl set-timezone "Asia/Shanghai"
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir          
+
+      - name: 初始化变量
+        run: |
+          export OWRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d_%H.%M.%S")
+          export OWRT_SOURCE=$(echo $OWRT_URL | cut -d '/' -f 5-)
+          #export OWRT_TYPE="cortex-a53"
+
+          echo "OWRT_SOURCE=$OWRT_SOURCE" >> $GITHUB_ENV
+          echo "OWRT_TARGET=$OWRT_TARGET" >> $GITHUB_ENV
+          echo "OWRT_DATE=$OWRT_DATE" >> $GITHUB_ENV
+          echo "OWRT_TYPE=$OWRT_TYPE" >> $GITHUB_ENV
+          echo "OWRT_PW=$OWRT_PW" >> $GITHUB_ENV
+          echo "OWRT_IP=$OWRT_IP" >> $GITHUB_ENV
+          echo "OWRT_LINUX=$OWRT_LINUX" >> $GITHUB_ENV
+
+      - name: 检查脚本
+        run: |
+          cd ./Scripts
+
+          dos2unix ./*.sh
+          chmod +x ./*.sh
+
+      - name: 克隆源码库
+        working-directory: /workdir
+        run: |
+          df -hT $PWD
+          git clone $OWRT_URL -b $OWRT_BRANCH --single-branch openwrt
+          #git clone $OWRT_URL openwrt
+          ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+          [ -e $GITHUB_WORKSPACE/Config/$OWRT_CFG ] && echo "DEVICE_NAME=$(grep '^CONFIG_TARGET_.*_.*_DEVICE_.*=y' $GITHUB_WORKSPACE/Config/$OWRT_CFG | sed -r 's/.*DEVICE_(.*)=y/\1/')" >> $GITHUB_ENV
+
+      - name: 加载自定义订阅源
+        run: |
+          cd openwrt
+          echo 'src-git mo_small https://github.com/kenzok8/small-package' >>feeds.conf.default
+          echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: 启动缓存[第二次起生效]
+        uses: rmoyulong/cachewrtbuild@main
+        with:
+          ccache: 'true'
+          prefix: ${{ github.workspace }}/openwrt
+          mixkey: ${{ env.OWRT_URL }}/tree/${{ env.OWRT_BRANCH }}?device=${{ env.DEVICE_NAME }}		  
+
+      - name: 更新订阅源
+        run: |
+          cd openwrt
+
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: 自定义脚本
+        run: |
+          cd openwrt
+
+          $GITHUB_WORKSPACE/Scripts/Settings.sh
+
+          cd ./package
+
+          $GITHUB_WORKSPACE/Scripts/Plugins.sh
+
+      - name: 自定义设置
+        run: |
+          [ -e files ] && mv files openwrt/files
+          cd openwrt
+
+          rm -rf ./tmp* ./.config*
+          #make dirclean
+          [ -e $GITHUB_WORKSPACE/Config/$OWRT_CFG ] && mv $GITHUB_WORKSPACE/Config/$OWRT_CFG .config
+          make defconfig
+
+      - name: 下载编译依赖
+        working-directory: ./openwrt
+        run: |
+          make download -j$(nproc)
+          #make download -j8
+          #make -j16 download
+          find dl -size -1024c -exec ls -l {} \;
+          find dl -size -1024c -exec rm -f {} \;
+
+      - name: 编译固件
+        working-directory: ./openwrt
+        run: |     
+          echo -e "$(nproc) thread compile"
+          make -j$(nproc) || make -j1 || make -j1 V=s
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV  
+
+      - name: 整理固件
+        run: |
+          cd openwrt && mkdir ./upload
+
+          rm -rf $(find ./bin/targets/ -iregex ".*\(json\|manifest\|buildinfo\|sha256sums\|packages\)$")
+          cp -rf $(find ./bin/targets/ -type f -iname "*.*") ./upload/
+          cp -rf ./.config ./upload/Config_"$OWRT_TARGET"_"$OWRT_SOURCE"_"$OWRT_DATE".txt
+
+          cd ./upload
+
+          $GITHUB_WORKSPACE/Scripts/Renames.sh
+
+      - name: 生成固件标签
+        uses: softprops/action-gh-release@master
+        with:
+          tag_name: ${{env.OWRT_TARGET}}_${{env.OWRT_SOURCE}}_${{env.OWRT_DATE}}
+          files: openwrt/upload/*.*
+          body: |
+            个人使用的AX6固件！
+            刷机有风险！刷前需谨慎！
+
+            源码：${{env.OWRT_SOURCE}}
+            平台：${{env.OWRT_TARGET}}
+            设备：${{env.OWRT_TYPE}}
+            密码：${{env.OWRT_PW}}
+            地址：${{env.OWRT_IP}}
+            内核：${{env.OWRT_LINUX}}
+
+      - name: 清理Releases
+        uses: dev-drprasad/delete-older-releases@master
+        with:
+          keep_latest: 6
+          delete_tags: true
+
+      - name: 清理Workflows
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          retain_days: 0
+          keep_minimum_runs: 1
