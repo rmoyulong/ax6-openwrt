@@ -65,8 +65,5 @@ echo " ╚═════╝ ╚═╝     ╚══════╝╚═╝  �
 echo " ------------------------------------------------------------- " >> package/base-files/files/etc/banner
 echo " %D %C ${build_date} by 莫稼麟                                 " >> package/base-files/files/etc/banner
 echo " ------------------------------------------------------------- " >> package/base-files/files/etc/banner
-echo "   源码：${{env.OWRT_SOURCE}}                                  " >> package/base-files/files/etc/banner
-echo "   平台：${{env.OWRT_TARGET}}                                  " >> package/base-files/files/etc/banner
-echo "   设备：${{env.OWRT_TYPE}}                                    " >> package/base-files/files/etc/banner
 echo " ------------------------------------------------------------- " >> package/base-files/files/etc/banner
 echo "                                                               " >> package/base-files/files/etc/banner
