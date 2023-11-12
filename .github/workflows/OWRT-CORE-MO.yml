@@ -155,6 +155,7 @@ jobs:
         run: |
           cd openwrt
 
+          cp -rf $GITHUB_WORKSPACE/ax6/banner package/base-files/files/etc/banner
           $GITHUB_WORKSPACE/Scripts/Settings.sh
 
           cd ./package
