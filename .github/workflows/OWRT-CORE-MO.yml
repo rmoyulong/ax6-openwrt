@@ -168,7 +168,7 @@ jobs:
           cd openwrt
 
           rm -rf ./tmp* ./.config*
-          rm -rf $(find ./ -type f -iname "*.config*") 
+          #rm -rf $(find ./ -type f -iname "*.config*") 
           #make dirclean
           [ -e $GITHUB_WORKSPACE/Config/$OWRT_CFG ] && mv $GITHUB_WORKSPACE/Config/$OWRT_CFG .config
           make defconfig
