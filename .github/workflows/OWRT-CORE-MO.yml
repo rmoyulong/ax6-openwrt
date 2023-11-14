@@ -126,8 +126,15 @@ jobs:
         run: |
           df -hT $PWD
           #git clone $OWRT_URL -b $OWRT_BRANCH --single-branch openwrt
-          git clone $OWRT_URL -b $OWRT_BRANCH openwrt
           #git clone $OWRT_URL openwrt
+          
+          if [[ $OWRT_LINUX == *"5.15"* ]] ; then
+            git clone --depth 1 $OWRT_URL -b $OWRT_BRANCH openwrt
+          else
+            git clone $OWRT_URL -b $OWRT_BRANCH openwrt         
+          fi
+          
+          
           ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
           [ -e $GITHUB_WORKSPACE/Config/$OWRT_CFG ] && echo "DEVICE_NAME=$(grep '^CONFIG_TARGET_.*_.*_DEVICE_.*=y' $GITHUB_WORKSPACE/Config/$OWRT_CFG | sed -r 's/.*DEVICE_(.*)=y/\1/')" >> $GITHUB_ENV
 
