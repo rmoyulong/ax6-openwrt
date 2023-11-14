@@ -210,7 +210,7 @@ jobs:
           $GITHUB_WORKSPACE/Scripts/Renames.sh
 
       - name: 生成固件标签
-        uses: softprops/action-gh-release@master
+        uses: rmoyulong/action-gh-release@master
         with:
           tag_name: ${{env.OWRT_TARGET}}_${{env.OWRT_SOURCE}}_${{env.OWRT_DATE}}
           files: openwrt/upload/*.*
@@ -226,13 +226,13 @@ jobs:
             内核：${{env.OWRT_LINUX}}
 
       - name: 清理Releases
-        uses: dev-drprasad/delete-older-releases@master
+        uses: rmoyulong/delete-older-releases@master
         with:
           keep_latest: 6
           delete_tags: true
 
       - name: 清理Workflows
-        uses: Mattraks/delete-workflow-runs@main
+        uses: rmoyulong/delete-workflow-runs@main
         with:
           retain_days: 0
           keep_minimum_runs: 1
