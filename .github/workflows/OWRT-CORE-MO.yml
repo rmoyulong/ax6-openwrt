@@ -148,8 +148,6 @@ jobs:
           # rm -rf package-temp
           
           echo 'src-git mo_small https://github.com/kenzok8/small-package' >>feeds.conf.default
-          #echo 'src-git mo_ssr_plus https://github.com/liuran001/openwrt-packages/tree/packages/luci-app-ssr-plus' >>feeds.conf.default
-          #echo 'src-git mo_small https://github.com/NueXini/NueXini_Packages.git' >>feeds.conf.default
           echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV          
 
       - name: 启动缓存[第二次起生效]
@@ -172,7 +170,9 @@ jobs:
           
           cp -rf $GITHUB_WORKSPACE/ax6/banner package/base-files/files/etc/banner
           $GITHUB_WORKSPACE/Scripts/Settings.sh
-          #$GITHUB_WORKSPACE/Scripts/custom.sh
+          if [[ $OWRT_LINUX == *"6.1.x"*  ]] ; then
+            $GITHUB_WORKSPACE/Scripts/custom.sh
+          if
           
           cd ./package
           $GITHUB_WORKSPACE/Scripts/Plugins.sh
