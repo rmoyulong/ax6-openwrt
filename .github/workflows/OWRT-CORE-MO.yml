@@ -172,7 +172,7 @@ jobs:
           $GITHUB_WORKSPACE/Scripts/Settings.sh
           if [[ $OWRT_LINUX == *"6.1.x"*  ]] ; then
             $GITHUB_WORKSPACE/Scripts/custom.sh
-          if
+          fi
           
           cd ./package
           $GITHUB_WORKSPACE/Scripts/Plugins.sh
