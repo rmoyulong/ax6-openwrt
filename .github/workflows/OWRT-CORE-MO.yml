@@ -170,7 +170,7 @@ jobs:
           
           cp -rf $GITHUB_WORKSPACE/ax6/banner package/base-files/files/etc/banner
           $GITHUB_WORKSPACE/Scripts/Settings.sh
-          $GITHUB_WORKSPACE/Scripts/custom.sh
+          #$GITHUB_WORKSPACE/Scripts/custom.sh
           
           cd ./package
           $GITHUB_WORKSPACE/Scripts/Plugins.sh
