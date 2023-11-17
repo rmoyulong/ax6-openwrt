@@ -14,8 +14,8 @@
 # https://github.com/jarod360/Redmi_AX6/blob/main/diy-part2.sh
 
 # 删除 packages
-rm -rf feeds/luci/applications/luci-app-passwall feeds/packages/net/haproxy feeds/packages/net/v2ray-geodata feeds/packages/net/v2dat
-rm -rf feeds/luci/applications/luci-app-mosdns
+#rm -rf $(find ./feeds/applications/ -type d -regex ".*\(passwall\|mosdns\).*")
+#rm -rf $(find ./feeds/net/ -type d -regex ".*\(v2ray-geodata\|v2dat\).*")
 
 # 增加 packages
-svn co https://github.com/rmoyulong/My-Pkg
+#svn co https://github.com/rmoyulong/My-Pkg
