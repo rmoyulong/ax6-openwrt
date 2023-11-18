@@ -87,3 +87,39 @@ echo " %D %C ${build_date} by 莫小小[我家猫]                         " >> 
 echo " ------------------------------------------------------------- " >> package/base-files/files/etc/banner
 echo " ------------------------------------------------------------- " >> package/base-files/files/etc/banner
 echo "                                                               " >> package/base-files/files/etc/banner
+
+# 修改初始化配置
+touch package/base-files/files/etc/custom.tag
+sed -i '/exit 0/d' package/base-files/files/etc/rc.local
+cat >> package/base-files/files/etc/rc.local << EOFEOF
+
+refresh_ad_conf() {
+    echo "hello"
+}
+
+init_custom_config {
+    cat >> /etc/nftables.d/10-custom-filter-chains.nft << EOF
+chain dns-redirect {
+    type nat hook prerouting priority -105;
+    udp dport 53 counter redirect to :53
+    tcp dport 53 counter redirect to :53
+}
+
+EOF
+
+    /etc/init.d/firewall restart >> /etc/custom.tag 2>&1
+    echo "firewall finish" >> /etc/custom.tag
+}
+	
+if [ -f "/etc/custom.tag" ]; then
+    echo "已经设置过！" > /etc/custom.tag
+    refresh_ad_conf &
+else
+    echo "init custom config start" > /etc/custom.tag
+    init_custom_config &
+fi
+
+echo "rc.local finish" >> /etc/custom.tag
+
+exit 0
+EOFEOF
