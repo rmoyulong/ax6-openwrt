@@ -52,7 +52,7 @@ env:
   
 jobs:
   owrt_core_mo:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: 项目检查
         uses: actions/checkout@main
