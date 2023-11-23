@@ -124,17 +124,30 @@ jobs:
       - name: 克隆源码库
         working-directory: /workdir
         run: |
-          df -hT $PWD
-          #git clone $OWRT_URL -b $OWRT_BRANCH --single-branch openwrt
-          #git clone $OWRT_URL openwrt
-          
-          if [[ $OWRT_LINUX == *"5.15"* ]] ; then
-            git clone --depth 1 $OWRT_URL -b $OWRT_BRANCH openwrt
+          # Set up compilation source code
+          if [[ "${{ inputs.OWRT_URL }}" == *"openwrt"* ]]; then
+              REPO_URL="https://github.com/openwrt/openwrt"
+              REPO_BRANCH="main"
+              TAGS_NAME="official"
+          elif [[ "${{ inputs.OWRT_URL }}" == *"lede"* ]]; then
+              REPO_URL="https://github.com/coolsnowwolf/lede"
+              REPO_BRANCH="master"
+              TAGS_NAME="lede"
+          elif [[ "${{ inputs.OWRT_URL }}" == *"immortalwrt"* ]]; then
+              REPO_URL="https://github.com/immortalwrt/immortalwrt"
+              REPO_BRANCH="master"
+              TAGS_NAME="immortalwrt"
           else
-            git clone $OWRT_URL -b $OWRT_BRANCH openwrt         
+              echo "Unknown source code repository."
+              exit 1
           fi
           
+          if [[ $OWRT_LINUX == *"5.15"* ]] ; then
+            REPO_BRANCH="${{ inputs.OWRT_BRANCH }}"
+          fi
           
+          df -hT $PWD
+          git clone -q --single-branch --depth=1 --branch=${REPO_BRANCH} ${REPO_URL} openwrt          
           ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
           [ -e $GITHUB_WORKSPACE/Config/$OWRT_CFG ] && echo "DEVICE_NAME=$(grep '^CONFIG_TARGET_.*_.*_DEVICE_.*=y' $GITHUB_WORKSPACE/Config/$OWRT_CFG | sed -r 's/.*DEVICE_(.*)=y/\1/')" >> $GITHUB_ENV
 
