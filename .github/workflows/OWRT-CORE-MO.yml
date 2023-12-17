@@ -154,16 +154,9 @@ jobs:
       - name: 加载自定义订阅源
         run: |
           cd openwrt
-         
-          # Add luci-app-vssr
-          # git clone https://github.com/rmoyulong/luci-app-vssr.git package-temp/luci-app-vssr
-          # mv -f package-temp/luci-app-vssr package/lean/
-          # rm -rf package-temp
           
-          
-          #echo 'src-git mo_smalla https://github.com/NueXini/NueXini_Packages.git' >>feeds.conf.default
-          #echo 'src-git mo_smallb https://github.com/liuran001/openwrt-packages.git' >>feeds.conf.default
-          echo 'src-git mo_small https://github.com/kenzok8/small-package' >>feeds.conf.default
+          #echo 'src-git mo_small https://github.com/kenzok8/small-package' >>feeds.conf.default
+          echo 'src-git mo_small https://github.com/kiddin9/openwrt-packages' >> feeds.conf.default
           echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV           
 
       - name: 启动缓存[第二次起生效]
@@ -186,12 +179,11 @@ jobs:
           
           cp -rf $GITHUB_WORKSPACE/ax6/banner package/base-files/files/etc/banner
           $GITHUB_WORKSPACE/Scripts/Settings.sh
+          
           if [[ $OWRT_LINUX == *"6.1.x"*  ]] ; then
+            cd ./package          
             $GITHUB_WORKSPACE/Scripts/custom.sh
           fi
-          
-          cd ./package
-          $GITHUB_WORKSPACE/Scripts/Plugins.sh
 
       - name: 自定义设置
         run: |
