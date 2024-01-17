@@ -12,9 +12,7 @@ rm -rf feeds/luci/applications/luci-app-serverchan
 rm -rf feeds/luci/applications/luci-app-openclash
 rm -rf feeds/luci/applications/luci-app-homeproxy
 rm -rf feeds/package/luci-app-turboacc
-rm -rf feeds/package/luci-app-ddns
 rm -rf package/luci-app-turboacc
-rm -rf package/luci-app-ddns
 
 # Git稀疏克隆，只克隆指定目录到本地
 function git_sparse_clone() {
@@ -52,7 +50,6 @@ git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-adb
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-n2n
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-qbittorrent
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-homebox
-git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-ddns
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-turboacc
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-usb-printer
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-vsftpd
