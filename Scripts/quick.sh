@@ -93,8 +93,8 @@ git_sparse_clone main https://github.com/kenzok8/small-package qtbase
 git_sparse_clone main https://github.com/kenzok8/small-package qttools
 git_sparse_clone main https://github.com/kenzok8/small-package rblibtorrent
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages vlmcsd
-#git_sparse_clone master https://github.com/kiddin9/openwrt-packages UnblockNeteaseMusic-Go
-#git_sparse_clone master https://github.com/kiddin9/openwrt-packages UnblockNeteaseMusic
+git_sparse_clone master https://github.com/kiddin9/openwrt-packages UnblockNeteaseMusic-Go
+git_sparse_clone master https://github.com/kiddin9/openwrt-packages UnblockNeteaseMusic
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages wrtbwmon
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages homebox
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages vsftpd-alt
