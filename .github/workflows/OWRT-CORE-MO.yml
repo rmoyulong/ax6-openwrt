@@ -197,6 +197,7 @@ jobs:
           cd openwrt
           
           cp -rf $GITHUB_WORKSPACE/ax6/banner package/base-files/files/etc/banner
+          rm -rf feeds/small/luci-app-ssr-plus
           $GITHUB_WORKSPACE/Scripts/Settings.sh
           
           if [[ $OWRT_LINUX == *"6.1.x"*  ]] ; then
