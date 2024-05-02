@@ -205,6 +205,9 @@ jobs:
             cd ./package          
             $GITHUB_WORKSPACE/Scripts/custom.sh
           fi
+          
+          rm -rf feeds/packages/net/shadowsocks-libev
+          rm -rf package/feeds/packages/shadowsocks-libev
 
       - name: 自定义设置
         run: |
