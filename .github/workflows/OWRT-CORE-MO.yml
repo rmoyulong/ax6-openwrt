@@ -206,10 +206,6 @@ jobs:
             $GITHUB_WORKSPACE/Scripts/custom.sh
           fi
           
-          #rm -rf feeds/small/luci-app-ssr-plus
-          #rm -rf feeds/small/shadowsocksr-libev
-          rm -rf package/feeds/packages/shadowsocks-libev 
-
       - name: 自定义设置
         run: |
           [ -e files ] && mv files openwrt/files
