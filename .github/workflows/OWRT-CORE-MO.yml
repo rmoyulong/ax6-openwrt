@@ -208,11 +208,11 @@ jobs:
           
       - name: 自定义设置
         run: |
-          [ -e files ] && mv files openwrt/files
+          [ -e $GITHUB_WORKSPACE/$OWRT_FILES ] && mv $GITHUB_WORKSPACE/$OWRT_FILES openwrt/files
           cd openwrt
 
           rm -rf ./tmp* ./.config*
-          #rm -rf $(find ./ -type f -iname "*.config*") 
+          #rm -rf $(find ./ -type f -iname "*.config*")
           #make dirclean
           [ -e $GITHUB_WORKSPACE/Config/$OWRT_CFG ] && mv $GITHUB_WORKSPACE/Config/$OWRT_CFG .config
           make defconfig
