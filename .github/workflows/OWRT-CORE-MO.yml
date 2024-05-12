@@ -199,13 +199,16 @@ jobs:
           cd openwrt
           
           cp -rf $GITHUB_WORKSPACE/ax6/banner package/base-files/files/etc/banner
-          rm -rf feeds/small/luci-app-ssr-plus
           $GITHUB_WORKSPACE/Scripts/Settings.sh
           
           if [[ $OWRT_LINUX == *"6.1.x"*  ]] ; then
             cd ./package          
             $GITHUB_WORKSPACE/Scripts/custom.sh
           fi
+          
+          
+          #删除冲突的插件
+          $GITHUB_WORKSPACE/Scripts/remove.sh          
           
       - name: 自定义设置
         run: |
