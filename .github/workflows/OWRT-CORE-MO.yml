@@ -216,7 +216,7 @@ jobs:
           $GITHUB_WORKSPACE/Scripts/remove.sh          
           
       - name: 自定义设置
-        run: |
+        run: | 
           cd openwrt
           
           [ -e $GITHUB_WORKSPACE/$OWRT_FILES ] && mv $GITHUB_WORKSPACE/$OWRT_FILES files
@@ -228,6 +228,7 @@ jobs:
           #rm -rf $(find ./ -type f -iname "*.config*")
           #make dirclean
           [ -e $GITHUB_WORKSPACE/Config/$OWRT_CFG ] && mv $GITHUB_WORKSPACE/Config/$OWRT_CFG .config
+          
           make defconfig
 
       - name: 下载编译依赖
