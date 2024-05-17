@@ -36,3 +36,4 @@ jobs:
       #设备类型
       OWRT_TYPE: 红米AX6
       OWRT_LINUX: 6.1-tiny
+      OWRT_FILES: ax6/files
