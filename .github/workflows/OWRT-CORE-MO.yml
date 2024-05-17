@@ -218,6 +218,7 @@ jobs:
       - name: 自定义设置
         run: |
           cd openwrt
+          
           [ -e $GITHUB_WORKSPACE/$OWRT_FILES ] && mv $GITHUB_WORKSPACE/$OWRT_FILES files
           
           rm -rf feeds/packages/lang/golang
