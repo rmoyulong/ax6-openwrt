@@ -34,7 +34,10 @@ on:
         type: string
       OWRT_LINUX:
         required: true
-        type: string     
+        type: string
+      OWRT_FILES:
+        required: true
+        type: string
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
   OWRT_TARGET: ${{inputs.OWRT_TARGET}}
@@ -47,6 +50,7 @@ env:
   OWRT_BRANCH: ${{inputs.OWRT_BRANCH}}
   OWRT_TYPE: ${{inputs.OWRT_TYPE}}
   OWRT_LINUX: ${{inputs.OWRT_LINUX}}
+  OWRT_FILES: ${{inputs.OWRT_FILES}}
   TZ: Asia/Shanghai
   #USE_CACHEWRTBUILD: true
   
@@ -213,7 +217,7 @@ jobs:
           
       - name: 自定义设置
         run: |
-          [ -e files ] && mv files openwrt/files
+          [ -e $GITHUB_WORKSPACE/$OWRT_FILES ] && mv $GITHUB_WORKSPACE/$OWRT_FILES openwrt/files
           cd openwrt
           
           rm -rf feeds/packages/lang/golang
