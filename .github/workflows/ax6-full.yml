@@ -31,7 +31,7 @@ on:
         type: choice
         options:
         - 主路由
-        - 旁路由     
+        - 旁路由
 
       openclash_meta:
         description: 'meta内核'     
