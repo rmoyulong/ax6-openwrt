@@ -19,8 +19,6 @@ if [[ "$4" == *"lede"* ]]; then
   
   #修改lede默认时间格式
   sed -i 's/os.date()/os.date("%Y-%m-%d %H:%M:%S %A")/g' $(find ./package/*/autocore/files/ -type f -name "index.htm")
-else  
-  rm -rf feeds/luci/themes/luci-theme-argon && git clone -b master https://github.com/jerrykuku/luci-theme-argon.git feeds/luci/themes/luci-theme-argon
 fi
 
 #最新golang
