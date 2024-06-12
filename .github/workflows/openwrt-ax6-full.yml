@@ -5,7 +5,7 @@
 name: 【AX6增强版-openwrt】
 
 on:
-  #对应的是 UTC 时间，需要转换，0 代表北京时间8点，每个月1日/15日12点编译一次
+  #对应的是 UTC 时间，需要转换，0 代表北京时间8点，每个月3日/18日12点编译一次
   #关闭则手动编译
   workflow_dispatch:
     inputs:
@@ -18,6 +18,12 @@ on:
         - material
         - argon
 
+      OP_IP:
+        description: 'IP选项'     
+        required: true
+        default: '192.168.31.1'
+        type: string
+        
       OP_router:
         description: '路由器类型'     
         required: true
@@ -37,7 +43,7 @@ on:
         - opencrash
         
   schedule:
-    - cron: 0 4 1,15 * *
+    - cron: 0 4 3,18 * *
 
 #CI权限
 permissions: write-all
