@@ -32,6 +32,9 @@ on:
         options:
         - 主路由
         - 旁路由
+        
+  schedule:
+    - cron: 0 4 1,15 * *
 
 #CI权限
 permissions: write-all
