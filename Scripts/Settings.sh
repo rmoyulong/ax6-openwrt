@@ -1,25 +1,39 @@
 #!/bin/bash
+ip="192.168.31.1"
+iname="Openwrt"
+ithemes="luci-theme-material"
+if [ ! -z "$1" ];then
+    ip=$1
+fi
+if [ ! -z "$2" ];then
+    iname=$2
+fi
+if [ ! -z "$3" ];then
+    ithemes="luci-theme-$3"
+fi
 
-#删除冲突插件
-#rm -rf $(find ./feeds/luci/ -type d -regex ".*\(argon\|design\|openclash\).*")
-#rm -rf feeds/mo_small/{upx}
-rm -rf feeds/mo_small/{base-files,dnsmasq,firewall*,fullconenat,libnftnl,nftables,ppp,opkg,ucl,upx,vsftpd-alt,miniupnpd-iptables,wireless-regdb}
 #修改默认主题
 #替换主题为原版argon
-#rm -rf feeds/luci/themes/luci-theme-argon && git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git feeds/luci/themes/luci-theme-argon
+if [[ "$4" == *"lede"* ]]; then
+  rm -rf feeds/luci/themes/luci-theme-argon && git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git feeds/luci/themes/luci-theme-argon
+  
+  #修改lede默认时间格式
+  sed -i 's/os.date()/os.date("%Y-%m-%d %H:%M:%S %A")/g' $(find ./package/*/autocore/files/ -type f -name "index.htm")
+else  
+  rm -rf feeds/luci/themes/luci-theme-argon && git clone -b master https://github.com/jerrykuku/luci-theme-argon.git feeds/luci/themes/luci-theme-argon
+fi
+
+#最新golang
+rm -rf feeds/packages/lang/golang
+git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
+
 #修改默认IP地址
-sed -i "s/192\.168\.[0-9]*\.[0-9]*/$OWRT_IP/g" ./package/base-files/files/bin/config_generate
+sed -i "s/192\.168\.[0-9]*\.[0-9]*/${ip}/g" ./package/base-files/files/bin/config_generate
 #修改默认主机名
-sed -i "s/hostname='.*'/hostname='$OWRT_NAME'/g" ./package/base-files/files/bin/config_generate
+sed -i "s/hostname='.*'/hostname='${iname}'/g" ./package/base-files/files/bin/config_generate
 #修改默认时区
 sed -i "s/timezone='.*'/timezone='CST-8'/g" ./package/base-files/files/bin/config_generate
 sed -i "/timezone='.*'/a\\\t\t\set system.@system[-1].zonename='Asia/Shanghai'" ./package/base-files/files/bin/config_generate
-
-#根据源码来修改
-if [[ $OWRT_URL == *"lede"* ]] ; then
-  #修改默认时间格式
-  sed -i 's/os.date()/os.date("%Y-%m-%d %H:%M:%S %A")/g' $(find ./package/*/autocore/files/ -type f -name "index.htm")
-fi
 
 # Modify default NTP server
 echo 'Modify default NTP server...'
@@ -28,18 +42,56 @@ sed -i 's/time1.cloud.tencent.com/ntp.aliyun.com/' package/base-files/files/bin/
 sed -i 's/time.ustc.edu.cn/cn.ntp.org.cn/' package/base-files/files/bin/config_generate
 sed -i 's/cn.pool.ntp.org/pool.ntp.org/' package/base-files/files/bin/config_generate
 
+######################################################################################################
+#luci Makefile基础配置
 
-#5.更换lede源码中自带argon主题
-#git clone --depth 1来只克隆最近一次提交的仓库。
-#[ -e package/lean/default-settings/files/zzz-default-settings ] && rm -rf feeds/luci/themes/luci-theme-argon && git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git feeds/luci/themes/luci-theme-argon
-#[ -e package/lean/default-settings/files/zzz-default-settings ] && rm -rf feeds/luci/themes/luci-theme-argon && git clone --depth 1 https://github.com/jerrykuku/luci-theme-argon.git feeds/luci/themes/luci-theme-argon
-#[ -e package/lean/default-settings/files/zzz-default-settings ] && rm -rf feeds/luci/themes/luci-theme-design && git clone --depth 1 https://github.com/gngpp/luci-theme-design feeds/luci/themes/luci-theme-design
-#[ -e package/lean/default-settings/files/zzz-default-settings ] && rm -rf feeds/luci/applications/luci-app-design-config && git clone --depth 1 https://github.com/gngpp/luci-app-design-config feeds/luci/applications/luci-app-design-config
+if [ ! -d "./feeds/luci/collections/luci" ]; then
+  mkdir -p ./feeds/luci/collections/luci
+fi
 
+cp -rf $GITHUB_WORKSPACE/patch/luci/Makefile ./feeds/luci/collections/luci
 # 修改 argon 为默认主题
-sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
-sed -i 's/luci-theme-argon/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
-sed -i 's/luci-theme-design/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
+if [[ "$4" == *"lede"* ]]; then
+  cat <<EOF >>./feeds/luci/collections/luci/Makefile
+
+LUCI_TYPE:=col
+LUCI_BASENAME:=luci
+
+LUCI_TITLE:=Standard OpenWrt set including full admin with ppp support and the default Bootstrap theme
+LUCI_DEPENDS:= \
+	+uhttpd +uhttpd-mod-ubus +luci-mod-admin-full +luci-theme-$3 \
+	+dos2unix +luci-proto-ppp +libiwinfo-lua \
+	+rpcd-mod-rrdns
+
+PKG_LICENSE:=Apache-2.0
+
+include ../../luci.mk
+
+# call BuildPackage - OpenWrt buildroot signature
+EOF
+else
+  cat <<EOF >>./feeds/luci/collections/luci/Makefile
+
+LUCI_TYPE:=col
+LUCI_BASENAME:=luci
+
+LUCI_TITLE:=LuCI interface with Uhttpd as Webserver (default)
+LUCI_DESCRIPTION:=Standard OpenWrt set including package management and attended sysupgrades support
+LUCI_DEPENDS:= \
+    +luci-theme-$3 \
+	+luci-light \
+	+dos2unix \
+	+luci-app-opkg
+
+PKG_LICENSE:=Apache-2.0
+
+include ../../luci.mk
+
+# call BuildPackage - OpenWrt buildroot signature
+EOF
+fi
+
+######################################################################################################
 
 #固件版本号添加个人标识和日期
 [ -e package/lean/default-settings/files/zzz-default-settings ] && sed -i "s/DISTRIB_DESCRIPTION='.*OpenWrt '/DISTRIB_DESCRIPTION='莫小小($(TZ=UTC-8 date +%Y.%m.%d))@OpenWrt '/g" package/lean/default-settings/files/zzz-default-settings
@@ -61,6 +113,9 @@ sed -i '/customized in this file/a fs.file-max=102400\nnet.ipv4.neigh.default.gc
 
 # 修正连接数（by ベ七秒鱼ベ）
 sed -i '/customized in this file/a net.netfilter.nf_conntrack_max=65535' package/base-files/files/etc/sysctl.conf
+
+#修正ttyd
+sed -i 's|/bin/login|/bin/login -f root|g' feeds/packages/utils/ttyd/files/ttyd.config
 
 # hijack dns queries to router(firewall)
 sed -i '/REDIRECT --to-ports 53/d' package/network/config/firewall/files/firewall.user
