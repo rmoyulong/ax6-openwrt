@@ -18,12 +18,6 @@ on:
         - material
         - argon
 
-      OP_IP:
-        description: 'IP选项'     
-        required: true
-        default: '192.168.31.1'
-        type: string
-        
       OP_router:
         description: '路由器类型'     
         required: true
@@ -32,6 +26,15 @@ on:
         options:
         - 主路由
         - 旁路由
+
+      openclash_meta:
+        description: 'meta内核'     
+        required: true
+        default: 'openclash' 
+        type: choice
+        options:
+        - openclash
+        - opencrash
         
   schedule:
     - cron: 0 4 1,15 * *
@@ -100,5 +103,5 @@ jobs:
       CORE_Pack: false
       #feeds.conf.default  -- patch 目录 使用默认的：false
       CORE_feeds_conf: false
-      CORE_META: false
+      CORE_META: ${{ github.event.inputs.openclash_meta }}
       OP_router: ${{ github.event.inputs.OP_router }}
