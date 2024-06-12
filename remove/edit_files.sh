@@ -8,6 +8,11 @@ fi
 #默认主路由
 rm -rf ./files/etc/config/dhcp
 rm -rf ./files/etc/config/network
+
+#如果files/etc/config/文件夹不存在，创建文件夹
+if [ ! -d "./files/etc/config/" ]; then
+  mkdir ./files/etc/config/
+fi
    
 if [[ "$1" == *"旁路由"* ]]; then
     echo "config dnsmasq
