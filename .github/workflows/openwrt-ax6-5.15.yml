@@ -27,7 +27,7 @@ on:
       OP_router:
         description: '路由器类型'     
         required: true
-        default: '主路由' 
+        default: '主路由'
         type: choice
         options:
         - 主路由
@@ -61,7 +61,7 @@ jobs:
       CORE_BRANCH: openwrt-23.05
       CORE_tag_name: 5.15版
       # 头部 配置文件 --- header 目录
-      CORE_header: qualcommax_ipq807x_DEVICE_redmi_ax6-stock.config
+      CORE_header: qualcommax_ipq807x_DEVICE_redmi_ax6-stock-5.15.config
       # 配置文件 -- config 目录
       CORE_config: diy_imoutowrt-5.15.config
       # 补丁脚本 -- patch 目录 不执行: false 没有执行cd openwrt
@@ -84,7 +84,7 @@ jobs:
       # 删除不兼容的插件 -- remove 目录 不执行: false 已经执行cd openwrt
       CORE_remove: openwrt_remove.sh
       # 修正files配置文件脚本 -- remove  目录 不执行: false 已经执行cd openwrt
-      CORE_Files_SH: false
+      CORE_Files_SH: edit_files.sh
       # linux 内核
       CORE_LINUX: 5.15.x
       # 固件初始设置 -- patch 目录 不执行: false
