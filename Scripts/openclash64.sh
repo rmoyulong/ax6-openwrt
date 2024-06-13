@@ -37,8 +37,8 @@ curl -sfL -o ./GeoIP.dat $GEO_IP
 
 mkdir -p ./core
 
-curl -sfL -o ./tun.gz "$CORE_TUN"-"$CORE_TYPE"-"$TUN_VER".gz
-gzip -d ./tun.gz && cp -rf ./tun ./core/clash_tun
+#curl -sfL -o ./tun.gz "$CORE_TUN"-"$CORE_TYPE"-"$TUN_VER".gz
+#gzip -d ./tun.gz && cp -rf ./tun ./core/clash_tun
 
 if [ "${meta}" == *"openclash"* ];then
   curl -sfL -o ./meta.tar.gz "$CORE_MATE"-"$CORE_TYPE".tar.gz
