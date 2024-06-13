@@ -32,15 +32,6 @@ on:
         options:
         - 主路由
         - 旁路由
-
-      openclash_meta:
-        description: 'meta内核'     
-        required: true
-        default: 'openclash' 
-        type: choice
-        options:
-        - openclash
-        - opencrash
         
   schedule:
     - cron: 0 4 1,15 * *
@@ -109,5 +100,5 @@ jobs:
       CORE_Pack: false
       #feeds.conf.default  -- patch 目录 使用默认的：false
       CORE_feeds_conf: false
-      CORE_META: ${{ github.event.inputs.openclash_meta }}
+      CORE_META: openclash
       OP_router: ${{ github.event.inputs.OP_router }}
