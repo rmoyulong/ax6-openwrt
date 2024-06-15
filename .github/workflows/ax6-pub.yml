@@ -73,8 +73,8 @@ jobs:
       CORE_DIY_P1_SH: immortalwrt.sh
       CORE_DIY_P2_SH: Settings.sh
       #####################################
-      #固件初始设置files soc
-      CORE_DIY_P3_SH: false
+      #固件初始设置files soc 远程公用files文件夹下载 不适用设置为: false
+      CORE_DIY_P3_SH: universal_init.sh
       #######################################
       #openclash
       CORE_DIY_P4_SH: false
