@@ -33,8 +33,8 @@ on:
         - 主路由
         - 旁路由
         
-  schedule:
-    - cron: 0 4 2,16 * *
+  #schedule:
+    #- cron: 0 4 2,16 * *
 
 #CI权限
 permissions: write-all
