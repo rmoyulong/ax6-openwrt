@@ -49,7 +49,7 @@ jobs:
       CORE_BRANCH: master
       CORE_tag_name: 微型版
       # 头部 配置文件 --- header 目录
-      CORE_header: qualcommax_ipq807x_DEVICE_redmi_ax6-stock-small.config
+      CORE_header: false
       # 配置文件 -- config 目录
       CORE_config: diy_imoutowrt.config
       # 补丁脚本 -- patch 目录 不执行: false 没有执行cd openwrt
