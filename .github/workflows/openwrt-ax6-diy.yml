@@ -9,15 +9,6 @@ on:
   #关闭则手动编译
   workflow_dispatch:
     inputs:
-      theme:
-        description: '主题'     
-        required: true
-        default: 'material' 
-        type: choice
-        options:
-        - material
-        - argon
-
       OP_IP:
         description: 'IP选项'     
         required: true
@@ -54,14 +45,14 @@ jobs:
       #默认密码，仅作展示，更改无效
       CORE_PW: password
       #默认地址
-      CORE_IP: ${{ github.event.inputs.OP_IP }}
+      CORE_IP: material
       #默认源码
       CORE_URL: https://github.com/openwrt/openwrt
       #源码版本
       CORE_BRANCH: main
       CORE_tag_name: 微型版
       # 头部 配置文件 --- header 目录
-      CORE_header: qualcommax_ipq807x_DEVICE_redmi_ax6-stock.config
+      CORE_header: qualcommax_ipq807x_DEVICE_redmi_ax6-stock-small.config
       # 配置文件 -- config 目录
       CORE_config: diy_imoutowrt.config
       # 补丁脚本 -- patch 目录 不执行: false 没有执行cd openwrt
