@@ -45,7 +45,7 @@ jobs:
       #默认密码，仅作展示，更改无效
       CORE_PW: password
       #默认地址
-      CORE_IP: material
+      CORE_IP: ${{ github.event.inputs.OP_IP }}
       #默认源码
       CORE_URL: https://github.com/openwrt/openwrt
       #源码版本
