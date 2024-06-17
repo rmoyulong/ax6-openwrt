@@ -39,7 +39,7 @@ jobs:
       #编译平台，X64包含X86
       CORE_TARGET: Redmi-AX6
       #默认主题
-      CORE_THEME: ${{ github.event.inputs.theme }}
+      CORE_THEME: material
       #默认主机名
       CORE_NAME: Redmi-AX6
       #默认密码，仅作展示，更改无效
