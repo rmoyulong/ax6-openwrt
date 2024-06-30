@@ -138,6 +138,7 @@ jobs:
           echo "CORE_DATE=$CORE_DATE" >> $GITHUB_ENV
           echo "CORE_PW=$CORE_PW" >> $GITHUB_ENV
           echo "CORE_IP=$CORE_IP" >> $GITHUB_ENV
+          echo "CORE_URL=$CORE_URL" >> $GITHUB_ENV
           echo "CORE_BRANCH=$CORE_BRANCH" >> $GITHUB_ENV
           echo "CORE_patch=$CORE_patch" >> $GITHUB_ENV
           echo "CORE_patch_after=$CORE_patch_after" >> $GITHUB_ENV
@@ -202,23 +203,23 @@ jobs:
         working-directory: /workdir        
         run: |
           # Set up compilation source code
-          if [[ "${{ inputs.CORE_URL }}" == *"openwrt/openwrt"* ]]; then
+          if [[ "${{ env.CORE_URL }}" == *"openwrt/openwrt"* ]]; then
               REPO_URL="https://github.com/openwrt/openwrt"
               REPO_BRANCH="main"
-          elif [[ "${{ inputs.CORE_URL }}" == *"coolsnowwolf/lede"* ]]; then
+          elif [[ "${{ env.CORE_URL }}" == *"coolsnowwolf/lede"* ]]; then
               REPO_URL="https://github.com/coolsnowwolf/lede"
               REPO_BRANCH="master"
-          elif [[ "${{ inputs.CORE_URL }}" == *"immortalwrt/immortalwrt"* ]]; then
+          elif [[ "${{ env.CORE_URL }}" == *"immortalwrt/immortalwrt"* ]]; then
               REPO_URL="https://github.com/immortalwrt/immortalwrt"
               REPO_BRANCH="master"
           else
-              REPO_URL="${{ inputs.CORE_URL }}"
-              REPO_BRANCH="${{ inputs.CORE_BRANCH }}"
+              REPO_URL="${{ env.CORE_URL }}"
+              REPO_BRANCH="${{ env.CORE_BRANCH }}"
           fi
           
           if [[ $CORE_LINUX == *"5.15"* ]] ; then
-              REPO_URL="${{ inputs.CORE_URL }}"
-              REPO_BRANCH="${{ inputs.CORE_BRANCH }}"
+              REPO_URL="${{ env.CORE_URL }}"
+              REPO_BRANCH="${{ env.CORE_BRANCH }}"
           fi
           
           df -hT $PWD
@@ -229,13 +230,13 @@ jobs:
         run: |
           cd openwrt
           
-          if [[ "${{ inputs.CORE_feeds_conf }}" == *"false"* ]]; then
+          if [[ "${{ env.CORE_feeds_conf }}" == *"false"* ]]; then
             echo "使用默认feeds.conf.default文件"
           else
             cp -rf $GITHUB_WORKSPACE/${{ env.CORE_feeds_conf }} ./feeds.conf.default
           fi
           
-          if [[ "${{ inputs.CORE_DIY_P1_SH }}" == *"false"* ]]; then
+          if [[ "${{ env.CORE_DIY_P1_SH }}" == *"false"* ]]; then
             echo "不需要执行 CORE_DIY_P1_SH"
           else
             ${GITHUB_WORKSPACE}/${CORE_DIY_P1_SH}
@@ -244,7 +245,7 @@ jobs:
           
       - name: 前置补丁
         run: |
-          if [[ "${{ inputs.CORE_patch }}" == *"false"* ]]; then
+          if [[ "${{ env.CORE_patch }}" == *"false"* ]]; then
             echo "不需要打前置补丁"
           else
             ${GITHUB_WORKSPACE}/${CORE_patch}
@@ -266,7 +267,7 @@ jobs:
           
       - name: 后置补丁
         run: |
-          if [[ "${{ inputs.CORE_patch_after }}" == *"false"* ]]; then
+          if [[ "${{ env.CORE_patch_after }}" == *"false"* ]]; then
             echo "不需要打后置补丁"
           else
             ${GITHUB_WORKSPACE}/${CORE_patch_after}
@@ -279,23 +280,23 @@ jobs:
           curl -L -o package/base-files/files/etc/banner https://raw.githubusercontent.com/rmoyulong/AX6-Actions_Lede/master/ax6/cats_banner
           ${GITHUB_WORKSPACE}/${CORE_DIY_P2_SH} "${{ env.CORE_IP }}" "${{ env.CORE_NAME }}" "${{ env.CORE_THEME }}" "${{ env.CORE_SOURCE }}"
           
-          if [[ "${{ inputs.CORE_DIY_P3_SH }}" == *"false"* ]]; then
+          if [[ "${{ env.CORE_DIY_P3_SH }}" == *"false"* ]]; then
             echo "不需要执行 CORE_DIY_P3_SH"
           else
             ${GITHUB_WORKSPACE}/${CORE_DIY_P3_SH} "${CORE_FILES}" "${CORE_header}" "${{ env.CORE_SOURCE }}"
           fi
           
-          if [[ "${{ inputs.CORE_DIY_P4_SH }}" == *"false"* ]]; then
+          if [[ "${{ env.CORE_DIY_P4_SH }}" == *"false"* ]]; then
             echo "不需要执行 CORE_DIY_P4_SH"
           else
-            ${GITHUB_WORKSPACE}/${CORE_DIY_P4_SH} "${{ inputs.CORE_META }}" "${{ inputs.CORE_IP }}"
+            ${GITHUB_WORKSPACE}/${CORE_DIY_P4_SH} "${{ env.CORE_META }}" "${{ env.CORE_IP }}"
           fi 
 
       - name: 删除冲突的插件
         run: |
           cd openwrt
           
-          if [[ "${{ inputs.CORE_remove }}" == *"false"* ]]; then
+          if [[ "${{ env.CORE_remove }}" == *"false"* ]]; then
             echo "不需要删除冲突的插件"
           else
             ${GITHUB_WORKSPACE}/${CORE_remove}
@@ -314,7 +315,7 @@ jobs:
           rm -rf ./tmp* ./.config*
           rm -rf ./.config
           
-          if [[ "${{ inputs.CORE_header }}" == *"false"* ]]; then
+          if [[ "${{ env.CORE_header }}" == *"false"* ]]; then
              echo "没有header config文件"
              cat ${GITHUB_WORKSPACE}/${CORE_config}  > .config
           else
@@ -327,10 +328,10 @@ jobs:
         run: |
           cd openwrt
           
-          if [[ "${{ inputs.CORE_Files_SH }}" == *"false"* ]]; then
+          if [[ "${{ env.CORE_Files_SH }}" == *"false"* ]]; then
             echo "不需要执行 CORE_Files_SH"
           else
-            ${GITHUB_WORKSPACE}/${CORE_Files_SH} "$OP_router" "$CORE_NAME" "${{ inputs.CORE_IP }}"
+            ${GITHUB_WORKSPACE}/${CORE_Files_SH} "$OP_router" "$CORE_NAME" "${{ env.CORE_IP }}"
             echo $OP_router
             echo $CORE_header
           fi
