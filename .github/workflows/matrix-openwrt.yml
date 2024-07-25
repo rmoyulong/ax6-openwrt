@@ -353,7 +353,16 @@ jobs:
           make -j$(nproc) || make -j1 || make -j1 V=s
           echo "status=success" >> $GITHUB_OUTPUT
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV 
-        
+
+      - name: 获得固件信息
+        run: |
+          cd openwrt/bin/targets/*/*
+          echo "KERNEL1=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')" >> $GITHUB_ENV
+          kword=${{ env.KERNEL1 }}
+          KERNEL=${kword%~*}
+          echo "KERNEL=$KERNEL" >> $GITHUB_ENV
+          cat sha256sums
+          
       - name: 整理固件
         run: |
           cd openwrt && mkdir ./upload
@@ -389,6 +398,7 @@ jobs:
             ➦ 💻 固件平台：${{ env.CORE_TARGET }}
             ➦ ⚽ 固件源码：${{ env.CORE_SOURCE }}
             ➦ 💝 源码分支：${{ env.CORE_BRANCH }}
+            ➦ 🚀 内核版本：${{ env.KERNEL }}
             ➦ 🌐 默认地址：${{env.CORE_IP}}
             ➦ 🔑 默认密码：password            
 
