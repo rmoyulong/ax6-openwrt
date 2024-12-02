@@ -157,11 +157,11 @@ jobs:
           
           CORE_config="Config/${{ matrix.config_type }}"
           echo "CORE_config=$CORE_config" >> $GITHUB_ENV
-          if [[ "${{ matrix.config_type }}" == "6.1-tiny.config" ]]; then
+          if [[ "${{ matrix.config_type }}" == "6.1-tiny-openwrt.config" ]]; then
             echo "CORE_tag_name=精英版" >> $GITHUB_ENV
             CORE_header="header/qualcommax_ipq807x_DEVICE_redmi_ax6-stock.config"
             echo "CORE_header=$CORE_header" >> $GITHUB_ENV
-          elif [[ "${{ matrix.config_type }}" == "6.1-diy.config" ]]; then
+          elif [[ "${{ matrix.config_type }}" == "6.1-diy-openwrt.config" ]]; then
             echo "CORE_tag_name=微型版" >> $GITHUB_ENV
             CORE_header="header/qualcommax_ipq807x_DEVICE_redmi_ax6-stock-small.config"
             echo "CORE_header=$CORE_header" >> $GITHUB_ENV
