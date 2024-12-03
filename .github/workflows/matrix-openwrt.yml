@@ -159,11 +159,11 @@ jobs:
           echo "CORE_config=$CORE_config" >> $GITHUB_ENV
           if [[ "${{ matrix.config_type }}" == "6.1-tiny-openwrt.config" ]]; then
             echo "CORE_tag_name=精英版" >> $GITHUB_ENV
-            CORE_header="header/qualcommax_ipq807x_DEVICE_redmi_ax6-stock.config"
+            CORE_header="header/qualcommax_ipq807x_DEVICE_redmi_ax6-stock-openwrt.config"
             echo "CORE_header=$CORE_header" >> $GITHUB_ENV
           elif [[ "${{ matrix.config_type }}" == "6.1-diy-openwrt.config" ]]; then
             echo "CORE_tag_name=微型版" >> $GITHUB_ENV
-            CORE_header="header/qualcommax_ipq807x_DEVICE_redmi_ax6-stock-small.config"
+            CORE_header="header/qualcommax_ipq807x_DEVICE_redmi_ax6-stock-small-openwrt.config"
             echo "CORE_header=$CORE_header" >> $GITHUB_ENV
           else
              echo "没有选择编译任何类型"
