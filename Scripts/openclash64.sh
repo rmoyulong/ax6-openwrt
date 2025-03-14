@@ -37,14 +37,14 @@ curl -sfL -o ./GeoIP.dat $GEO_IP
 
 mkdir -p ./core
 
-#curl -sfL -o ./tun.gz "$CORE_TUN"-"$CORE_TYPE"-"$TUN_VER".gz
-#gzip -d ./tun.gz && cp -rf ./tun ./core/clash_tun
+curl -sfL -o ./tun.gz "$CORE_TUN"-"$CORE_TYPE"-"$TUN_VER".gz
+gzip -d ./tun.gz && cp -rf ./tun ./core/clash_tun
 
 if [ "${meta}" == *"openclash"* ];then
   curl -sfL -o ./meta.tar.gz "$CORE_MATE"-"$CORE_TYPE".tar.gz
   tar -zxf ./meta.tar.gz && cp -rf ./clash ./core/clash_meta
 else
-  curl -sfL -o ./meta.tar.gz "https://github.com/DustinWin/clash_singbox-tools/raw/main/mihomo-meta/mihomo-linux-armv8.tar.gz"
+  curl -sfL -o ./meta.tar.gz "https://github.com/DustinWin/proxy-tools/releases/download/mihomo/mihomo-meta-linux-armv8.tar.gz"
   tar -zxf ./meta.tar.gz && cp -rf ./CrashCore ./core/clash_meta
 fi
 
