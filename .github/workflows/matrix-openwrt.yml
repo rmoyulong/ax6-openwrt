@@ -16,7 +16,7 @@ env:
   CORE_NAME: Redmi-AX6
   CORE_THEME: material
   CORE_URL: https://github.com/openwrt/openwrt
-  CORE_BRANCH: main
+  CORE_BRANCH: openwrt-24.10
   CORE_IP: 192.168.31.1
   CORE_PW: password
   ################################
