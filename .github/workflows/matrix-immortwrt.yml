@@ -15,7 +15,7 @@ env:
   CORE_TARGET: Redmi-AX6
   CORE_NAME: Redmi-AX6
   CORE_THEME: material
-  CORE_URL: https://github.com/immortalwrt/immortalwrt
+  CORE_URL: https://github.com/VIKINGYFY/immortalwrt
   CORE_BRANCH: master
   CORE_IP: 192.168.31.1
   CORE_PW: password
