@@ -24,7 +24,7 @@ env:
   CORE_patch: false
   ################################
   #后置补丁 没有执行cd openwrt  在【更新订阅源】后执行
-  CORE_patch_after: false
+  CORE_patch_after: patch/python.patch.sh
   # 通用脚本 -- Scripts  目录 不执行: false 已经执行cd openwrt
   CORE_DIY_P1_SH: Scripts/immortalwrt.sh
   CORE_DIY_P2_SH: Scripts/Settings.sh
