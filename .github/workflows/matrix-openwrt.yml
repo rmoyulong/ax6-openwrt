@@ -35,7 +35,7 @@ env:
   #openclash    有false则不执行
   CORE_DIY_P4_SH: Scripts/false
   # 删除不兼容的插件 -- remove 目录 不执行: false 已经执行cd openwrt
-  CORE_remove: false
+  CORE_remove: remove/new_remove.sh
   CORE_LINUX: 6.6.30
   # 固件初始设置 -- patch 目录 目录不存在就不执行
   CORE_FILES: patch/ax6/files
