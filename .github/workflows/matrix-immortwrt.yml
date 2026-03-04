@@ -26,7 +26,7 @@ env:
   #后置补丁 没有执行cd openwrt  在【更新订阅源】后执行
   CORE_patch_after: patch/python.patch.sh
   # 通用脚本 -- Scripts  目录 不执行: false 已经执行cd openwrt
-  CORE_DIY_P1_SH: Scripts/immortalwrt.sh
+  CORE_DIY_P1_SH: Scripts/setup.sh
   CORE_DIY_P2_SH: Scripts/Settings.sh
   #####################################
   #固件初始设置files 远程公用files文件夹下载 不适用设置为: false
@@ -35,7 +35,7 @@ env:
   #openclash    有false则不执行
   CORE_DIY_P4_SH: Scripts/false
   # 删除不兼容的插件 -- remove 目录 不执行: false 已经执行cd openwrt
-  CORE_remove: remove/remove.sh
+  CORE_remove: false
   CORE_LINUX: 6.6.30
   # 固件初始设置 -- patch 目录 目录不存在就不执行
   CORE_FILES: patch/ax6/files
