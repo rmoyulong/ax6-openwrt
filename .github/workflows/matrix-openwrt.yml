@@ -21,7 +21,7 @@ env:
   CORE_PW: password
   ################################
   #前置补丁 没有执行cd openwrt 在【更新订阅源】前执行
-  CORE_patch: patch/openwrt-ax6.sh
+  CORE_patch: patch/new-ax6-openwrt.sh
   ################################
   #后置补丁 没有执行cd openwrt  在【更新订阅源】后执行
   CORE_patch_after: patch/python.patch.sh
