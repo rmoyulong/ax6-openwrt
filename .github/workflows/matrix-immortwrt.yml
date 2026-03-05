@@ -120,7 +120,7 @@ jobs:
           sudo -E apt-get -qq update --fix-missing
           sudo -E apt-get -qq full-upgrade
           
-          if [[ "${{ inputs.CORE_BRANCH }}" == *"openwrt-24.10"* ]]; then
+          if [[ "${{ env.CORE_BRANCH }}" == *"openwrt-24.10"* ]]; then
             sudo -E apt-get -qq install -y $(curl -fsSL https://raw.githubusercontent.com/rmoyulong/AX6-Actions_Lede/master/Ubuntu-2410.txt)
            else
             sudo -E apt-get -y install $(cat $GITHUB_WORKSPACE/Ubuntu-2204.txt)           
