@@ -5,4 +5,7 @@ openwrt传统版本，有满血NSS<br>
 
 immortalwrt版本有满血NSS<br>
 
-lede传统版本，没有NSS
+lede传统版本，没有NSS<br>
+---------------------------------------------------------------------<br>
+如果homeproxy无法启动，请将homeproxy.7z下载解压，然后用winscp类型的工具上传到路由器，替换路由器上的相同文件。<br>
+然后执行/etc/init.d/homeproxy restart 并重启路由器即可！
