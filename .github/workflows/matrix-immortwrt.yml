@@ -15,8 +15,10 @@ env:
   CORE_TARGET: Redmi-AX6
   CORE_NAME: Redmi-AX6
   CORE_THEME: material
-  CORE_URL: https://github.com/VIKINGYFY/immortalwrt
-  CORE_BRANCH: main
+  #CORE_URL: https://github.com/VIKINGYFY/immortalwrt
+  CORE_URL: https://github.com/LiBwrt/openwrt-6.x
+  #源码版本
+  CORE_BRANCH: main-nss
   CORE_IP: 192.168.31.1
   CORE_PW: password
   ################################
@@ -24,7 +26,7 @@ env:
   CORE_patch: false
   ################################
   #后置补丁 没有执行cd openwrt  在【更新订阅源】后执行
-  CORE_patch_after: patch/python-imm.patch.sh
+  CORE_patch_after: patch/python.patch.sh
   # 通用脚本 -- Scripts  目录 不执行: false 已经执行cd openwrt
   CORE_DIY_P1_SH: Scripts/setup.sh
   CORE_DIY_P2_SH: Scripts/Settings.sh
