@@ -8,3 +8,4 @@ merge_package master https://github.com/rmoyulong/old_coolsnowwolf_packages feed
 
 #替换回qualcommax6.12
 unzip $GITHUB_WORKSPACE/patch/qualcommax.zip
+cat feeds.conf.default
