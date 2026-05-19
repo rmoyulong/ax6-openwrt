@@ -12,6 +12,7 @@ rm -rf package/helloworld/geoview
 rm -rf package/helloworld/hysteria
 rm -rf package/helloworld/xray-core
 rm -rf package/helloworld/sing-box
+rm -rf package/helloworld/v2ray-geodata 
 
 merge_package master https://github.com/immortalwrt/packages package net/sing-box
 rm -f package/sing-box/Makefile
