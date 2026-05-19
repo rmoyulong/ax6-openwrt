@@ -15,7 +15,7 @@ rm -rf package/helloworld/geoview
 rm -rf package/helloworld/hysteria
 rm -rf package/helloworld/xray-core
 rm -rf package/helloworld/v2ray-geodata 
-cp -rf package/v2ray-core/* feeds/packages/net/v2ray-core
+cp -rf package/helloworld/v2ray-core/* feeds/packages/net/v2ray-core
 
 rm -rf feeds/packages/net/sing-box/*
 #mkdir -p feeds/packages/net/sing-box
