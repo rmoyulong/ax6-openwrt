@@ -115,7 +115,7 @@ env:
   CORE_DIY_P2_SH: Scripts/${{inputs.CORE_DIY_P2_SH}}
   CORE_DIY_P3_SH: Scripts/${{inputs.CORE_DIY_P3_SH}}
   CORE_DIY_P4_SH: Scripts/${{inputs.CORE_DIY_P4_SH}}
-  CORE_remove: remove/${{inputs.CORE_remove}}
+  CORE_remove: ${{inputs.CORE_remove}}
   CORE_LINUX: ${{inputs.CORE_LINUX}}
   CORE_FILES: patch/${{inputs.CORE_FILES}}
   kernel_repo: ${{inputs.kernel_repo}}
