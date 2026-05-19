@@ -16,6 +16,10 @@ rm -rf package/helloworld/hysteria
 rm -rf package/helloworld/xray-core
 rm -rf package/helloworld/v2ray-geodata 
 
+mkdir -p feeds/packages/net/sing-box
+cp -rf package/helloworld/sing-box/* feeds/packages/net/sing-box
+rm -rf package/helloworld/sing-box
+
 cd package
 $GITHUB_WORKSPACE/Scripts/Packages.sh
 $GITHUB_WORKSPACE/Scripts/Handles.sh
