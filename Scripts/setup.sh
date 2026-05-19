@@ -1,5 +1,5 @@
 #公用函数
-source $GITHUB_WORKSPACE/sh/functions.sh
+source $GITHUB_WORKSPACE/Scripts/functions.sh
 
 rm -rf feeds/luci/applications/luci-app-homeproxy
 git clone https://github.com/VIKINGYFY/homeproxy package/homeproxy
@@ -17,5 +17,5 @@ rm -rf package/helloworld/xray-core
 rm -rf package/helloworld/v2ray-geodata 
 
 cd package
-$GITHUB_WORKSPACE/sh/Packages.sh
-$GITHUB_WORKSPACE/sh/Handles.sh
+$GITHUB_WORKSPACE/Scripts/Packages.sh
+$GITHUB_WORKSPACE/Scripts/Handles.sh
