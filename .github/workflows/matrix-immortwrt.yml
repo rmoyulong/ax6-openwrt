@@ -18,7 +18,7 @@ env:
   #CORE_URL: https://github.com/VIKINGYFY/immortalwrt
   CORE_URL: https://github.com/LiBwrt/openwrt-6.x
   #源码版本
-  CORE_BRANCH: main-nss
+  CORE_BRANCH: 25.12-nss
   CORE_IP: 192.168.31.1
   CORE_PW: password
   ################################
