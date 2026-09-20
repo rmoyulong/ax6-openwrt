@@ -16,7 +16,7 @@ env:
   CORE_NAME: Redmi-AX6
   CORE_THEME: material
   #CORE_URL: https://github.com/VIKINGYFY/immortalwrt
-  CORE_URL: https://github.com/LiBwrt/openwrt-6.x
+  CORE_URL: https://github.com/LiBwrt/LibWrt
   #源码版本
   CORE_BRANCH: 25.12-nss
   CORE_IP: 192.168.31.1
@@ -215,25 +215,8 @@ jobs:
         id: codes
         working-directory: /workdir        
         run: |
-          # Set up compilation source code
-          if [[ "${{ env.CORE_URL }}" == *"openwrt/openwrt"* ]]; then
-              REPO_URL="https://github.com/openwrt/openwrt"
-              REPO_BRANCH="main"
-          elif [[ "${{ env.CORE_URL }}" == *"coolsnowwolf/lede"* ]]; then
-              REPO_URL="https://github.com/coolsnowwolf/lede"
-              REPO_BRANCH="master"
-          elif [[ "${{ env.CORE_URL }}" == *"immortalwrt/immortalwrt"* ]]; then
-              REPO_URL="https://github.com/immortalwrt/immortalwrt"
-              REPO_BRANCH="master"
-          else
-              REPO_URL="${{ env.CORE_URL }}"
-              REPO_BRANCH="${{ env.CORE_BRANCH }}"
-          fi
-          
-          if [[ $CORE_LINUX == *"5.15"* ]] ; then
-              REPO_URL="${{ env.CORE_URL }}"
-              REPO_BRANCH="${{ env.CORE_BRANCH }}"
-          fi
+          REPO_URL="${{ env.CORE_URL }}"
+          REPO_BRANCH="${{ env.CORE_BRANCH }}"
           
           df -hT $PWD
           git clone -q --single-branch --depth=1 --branch=${REPO_BRANCH} ${REPO_URL} openwrt
