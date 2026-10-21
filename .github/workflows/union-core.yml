@@ -115,7 +115,7 @@ env:
   CORE_DIY_P2_SH: Scripts/${{inputs.CORE_DIY_P2_SH}}
   CORE_DIY_P3_SH: Scripts/${{inputs.CORE_DIY_P3_SH}}
   CORE_DIY_P4_SH: Scripts/${{inputs.CORE_DIY_P4_SH}}
-  CORE_remove: ${{inputs.CORE_remove}}
+  CORE_remove: remove/${{inputs.CORE_remove}}
   CORE_LINUX: ${{inputs.CORE_LINUX}}
   CORE_FILES: patch/${{inputs.CORE_FILES}}
   kernel_repo: ${{inputs.kernel_repo}}
@@ -280,7 +280,7 @@ jobs:
       - name: 加载自定义订阅源
         run: |
           cd openwrt
-          
+         
           if [[ "${{ inputs.CORE_feeds_conf }}" == *"false"* ]]; then
             echo "使用默认feeds.conf.default文件"
           else
@@ -333,7 +333,7 @@ jobs:
           else
             ${GITHUB_WORKSPACE}/${CORE_DIY_P3_SH} "${CORE_FILES}" "${CORE_header}" "${{ env.CORE_SOURCE }}"
           fi
-
+          
       - name: 删除冲突的插件
         run: |
           cd openwrt
@@ -349,7 +349,7 @@ jobs:
             echo "不需要执行 CORE_DIY_P4_SH"
           else
             ${GITHUB_WORKSPACE}/${CORE_DIY_P4_SH} "${{ inputs.CORE_META }}" "${{ inputs.CORE_IP }}"
-          fi          
+          fi
           
       - name: 拷贝编译配置文件和插件初始化文件
         run: |
@@ -371,8 +371,8 @@ jobs:
              cat $GITHUB_WORKSPACE/${CORE_header}  > .config
              cat $GITHUB_WORKSPACE/${CORE_config} >> .config
           fi
-          #cat .config          
-
+          #cat .config
+          
       - name: 修正files文件配置
         run: |
           cd openwrt
