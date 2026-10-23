@@ -15,8 +15,10 @@ env:
   CORE_TARGET: Redmi-AX6
   CORE_NAME: Redmi-AX6
   CORE_THEME: material
-  CORE_URL: https://github.com/qosmio/openwrt-ipq
-  CORE_BRANCH: main-nss
+  #默认源码
+  CORE_URL: https://github.com/AgustinLorenzo/openwrt
+  #源码版本
+  CORE_BRANCH: main_nss
   CORE_IP: 192.168.31.1
   CORE_PW: password
   ################################
@@ -57,7 +59,7 @@ env:
 jobs:
   union_core:
     name: ${{ matrix.config_type }} 固件编译
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
