@@ -392,7 +392,7 @@ jobs:
           make download -j$(( $(nproc) * 2 ))
           find dl -size -1k -exec rm -f {} \;
 
-          make package/libs/libffi/compile V=s
+          #make package/libs/libffi/compile V=s
 
       - name: 编译固件
         working-directory: ./openwrt
