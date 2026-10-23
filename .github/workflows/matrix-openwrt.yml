@@ -349,7 +349,7 @@ jobs:
           find dl -size -1k -exec rm -f {} \;
 
           if [[ "${{ matrix.config_type }}" == "6.1-diy.config" ]]; then
-            make package/feeds/packages/libffi/compile V=s
+            make package/libs/libffi/compile V=s
           fi
 
       - name: 编译固件
