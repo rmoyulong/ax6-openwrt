@@ -1,0 +1,228 @@
+name: ax6 微型板 - openwrt
+
+on:
+  #对应的是 UTC 时间，需要转换，0 代表北京时间8点，每个月2日/15日12点编译一次
+  #关闭则手动编译
+  workflow_dispatch:
+
+env:
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+  CORE_TARGET: Redmi-AX6
+  CORE_NAME: Redmi-AX6
+  CORE_THEME: material
+  #默认源码
+  CORE_URL: https://github.com/AgustinLorenzo/openwrt
+  #源码版本
+  CORE_BRANCH: main_nss
+  CORE_IP: 192.168.31.1
+  CORE_PW: password
+  TZ: Asia/Shanghai
+
+
+jobs:
+    build:
+        name: 准备并构建 IPQ807x NSS 通用镜像
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: 检查
+              uses: actions/checkout@v6.0.2
+
+            - name: 解压 LLVM 预构建版本
+              run: |
+                wget https://downloads.openwrt.org/snapshots/targets/qualcommax/ipq807x/llvm-bpf-22.1.3.Linux-x86_64.tar.zst
+                tar --zstd -xvf llvm-bpf-22.1.3.Linux-x86_64.tar.zst
+
+            - name: 更新并安装订阅源
+              run: |
+                ./scripts/feeds update -a
+                ./scripts/feeds install -a
+
+            - name: 导入 IPQ807x NSS 通用版的完整配置
+              run: |
+                #mv .full_config .config
+                  #如果files文件夹不存在，创建文件夹
+                  if [ ! -d "./files" ]; then
+                    mkdir ./files
+                  fi
+                  [ -e $GITHUB_WORKSPACE/patch/ax6/files ] && cp -rf $GITHUB_WORKSPACE/patch/ax6/files/* ./files                  
+                 
+                  cat $GITHUB_WORKSPACE/header/qualcommax_ipq807x_DEVICE_redmi_ax6-stock-small-openwrt.config  > .config
+                  cat $GITHUB_WORKSPACE/Config/6.1-diy.config >> .config
+           
+
+            - name: 针对默认配置的体验优化
+              run: |
+                mkdir -p files/etc/uci-defaults
+                cat > files/etc/uci-defaults/zzz_99-qol_fixes << EOF
+                uci set wireless.radio0.country='US'
+                uci set wireless.radio1.country='US'
+                uci set wireless.radio2.country='US'
+                uci set wireless.radio1.disabled=0
+                uci set wireless.radio2.disabled=0
+                uci set pbuf.opt.memory_profile=auto
+                uci set firewall.@defaults[0].flow_offloading=0
+                uci set ecm.@general[0].enable_bridge_filtering=0
+                uci set system.@system[0].cronloglevel='7'
+                uci commit wireless
+                uci commit pbuf
+                uci commit firewall
+                uci commit ecm
+                uci commit system
+                EOF
+                
+                cat > files/etc/network << EOF
+                config interface 'loopback'
+                    option device 'lo'
+                    option proto 'static'
+                    list ipaddr '127.0.0.1/8'
+                    
+                config globals 'globals'
+                    option dhcp_default_duid '$(printf '%s%s' '0004' $(cat /proc/sys/kernel/random/uuid | sed -e 's/-//g'))'
+                    option packet_steering '0'
+                    
+                config device
+                    option name 'br-lan'
+                    option type 'bridge'
+                    list ports 'lan1'
+                    list ports 'lan2'
+                    list ports 'lan3'
+                    
+                config interface 'lan'
+                    option device 'br-lan'
+                    option proto 'static'
+                    option ip6assign '64'
+                    option ip6ifaceid 'eui64'
+                    list ipaddr '${{env.CORE_IP}}/24'
+                    
+                config interface 'wan'
+                    option device 'wan'
+                    option proto 'dhcp'
+                    
+                config interface 'wan6'
+                    option device 'wan'
+                    option proto 'dhcpv6'
+                    option reqaddress 'try'
+                    option reqprefix 'auto'
+                EOF    
+                
+                #修改默认时区
+                sed -i "s/timezone='.*'/timezone='CST-8'/g" ./package/base-files/files/bin/config_generate
+                sed -i "/timezone='.*'/a\\\t\t\set system.@system[-1].zonename='Asia/Shanghai'" ./package/base-files/files/bin/config_generate
+                
+                # 修改默认 NTP 服务器
+                echo 'Modify default NTP server...'
+                sed -i 's/ntp.aliyun.com/ntp.ntsc.ac.cn/' package/base-files/files/bin/config_generate
+                sed -i 's/time1.cloud.tencent.com/ntp.aliyun.com/' package/base-files/files/bin/config_generate
+                sed -i 's/time.ustc.edu.cn/cn.ntp.org.cn/' package/base-files/files/bin/config_generate
+                sed -i 's/cn.pool.ntp.org/pool.ntp.org/' package/base-files/files/bin/config_generate
+                
+                # 修改标识
+                openwrt_release="package/base-files/files/etc/openwrt_release"
+                dist_info="Openwrt SNAPSHOT 莫小小($(TZ=UTC-8 date +%Y.%m.%d))"
+                sed -i 's/^DISTRIB_DESCRIPTION=.*/DISTRIB_DESCRIPTION=${dist_info}/' $openwrt_release
+                #如果文件里该字段可能不在行首（前面有空格），把 ^ 去掉即可：
+                sed -i 's/DISTRIB_DESCRIPTION=.*/DISTRIB_DESCRIPTION="${dist_info}"/' $openwrt_release
+                
+                # 设置密码为password
+                sed -i 's/root:::0:99999:7:::/root:$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.:0:0:99999:7:::/' package/base-files/files/etc/shadow
+                
+                # 修正连接数（by ベ七秒鱼ベ）
+                sed -i '/customized in this file/a net.netfilter.nf_conntrack_max=65535' package/base-files/files/etc/sysctl.conf                
+                
+                # Modify default banner
+                build_date=$(TZ=UTC-8 date +%Y.%m.%d)
+                curl -L -o package/base-files/files/etc/banner https://raw.githubusercontent.com/rmoyulong/AX6-Actions_Lede/master/ax6/cats_banner
+                echo 'Modify default banner...'
+                echo "      %D %C ${build_date}                   " >> package/base-files/files/etc/banner
+                echo " ------------------------------------------------------------- " >> package/base-files/files/etc/banner
+                echo " ------------------------------------------------------------- " >> package/base-files/files/etc/banner
+                echo "                                                               " >> package/base-files/files/etc/banner                
+    
+            - name: 下载软件包源码
+              run: make download V=s
+
+            - name: 构建工具
+              run: |
+                make tools/install -j$(nproc) V=s || \
+                make tools/install V=s
+
+            - name: 构建工具链
+              run: |
+                make toolchain/install -j$(nproc) V=s || \
+                make toolchain/install V=s
+
+            - name: 构建目标镜像
+              run: |
+                make -j$(nproc) V=s || \
+                make V=s
+
+    release:
+        name: 发布版本
+        runs-on: ubuntu-latest
+        needs: build
+
+        steps:
+          - name:获取当前日期
+            run: |
+              echo "NOW=$(date +%F-%H%M)" >> $GITHUB_ENV
+              echo "NOWWEB=$(date +%Y%m%d)" >> $GITHUB_ENV
+                
+          - name: 获得固件信息
+            run: |
+              cd bin/targets/qualcommax/ipq807x/*
+              kword=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')
+              KERNEL=${kword%~*}
+              echo "KERNEL=$KERNEL" >> $GITHUB_ENV
+              cat sha256sums
+              
+          - name: 整理固件
+            run: |
+              mkdir ./upload
+              
+              rm -rf $(find ./bin/targets/ -iregex ".*\(json\|manifest\|buildinfo\|sha256sums\|packages\)$")
+              cp -rf $(find ./bin/targets/ -type f -iname "*.*") ./upload/
+              cp -rf ./.config ./upload/Config.txt
+              
+              export CORE_DATE=$(TZ=UTC-8 date +"%y.%m.%d_%H.%M.%S")
+              echo "CORE_DATE=$CORE_DATE" >> $GITHUB_ENV
+              show_tag_name=${{env.CORE_TARGET}}_${{env.CORE_SOURCE}}_${{env.CORE_DATE}}
+              echo "show_tag_name=$show_tag_name" >> $GITHUB_ENV
+              #获得当前目录的路径信息
+              cd ./upload
+              echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+              
+              #如有.tar文件就转化为.gz
+              files=$(ls *.tar 2> /dev/null | wc -l)
+              if [ "$files" != "0" ]; then
+                gzip *.tar
+              fi
+          
+          - name: 生成标签，上传固件
+            uses: ncipollo/release-action@v1
+            with:
+              allowUpdates: true
+              token: ${{ secrets.GITHUB_TOKEN }}
+              tag: ${{env.show_tag_name}}
+              body: |
+                ====================🧊固件信息🧊=======================
+                ➦ 📒 固件名称：${{env.CORE_NAME}} ${{env.CORE_tag_name}}
+                ➦ 💻 固件平台：${{ env.CORE_TARGET }}
+                ➦ ⚽ 固件源码：${{ env.CORE_SOURCE }}
+                ➦ 💝 源码分支：${{ env.CORE_BRANCH }}
+                ➦ 🚀 内核版本：${{ env.KERNEL }}
+                ➦ 🌐 默认地址：${{env.CORE_IP}}
+                ➦ 🔑 默认密码：password            
+              artifacts: ${{ env.FIRMWARE }}/*
+              
+          - name: 清理Releases
+            uses: rmoyulong/delete-older-releases@master
+            with:
+              keep_latest: 16
+              delete_tags: true
+
+          - name: 清理Workflows
+            uses: rmoyulong/delete-workflow-runs@main
+            with:
+              retain_days: 0
+              keep_minimum_runs: 1                
