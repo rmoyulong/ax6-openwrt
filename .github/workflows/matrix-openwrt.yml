@@ -177,7 +177,7 @@ jobs:
             echo "CORE_tag_name=OPENCLASH版" >> $GITHUB_ENV
             CORE_header="header/qualcommax_ipq807x_DEVICE_redmi_ax6-stock-openwrt.config"
             echo "CORE_header=$CORE_header" >> $GITHUB_ENV
-            CORE_DIY_P4_SH="openwrt-ax6.sh"
+            CORE_DIY_P4_SH="patch/openwrt-ax6.sh"
             echo "CORE_DIY_P4_SH=$CORE_DIY_P4_SH" >> $GITHUB_ENV            
           else
              echo "没有选择编译任何类型"
