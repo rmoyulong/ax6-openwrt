@@ -163,7 +163,7 @@ jobs:
         needs: build
 
         steps:
-          - name:获取当前日期
+          - name: 获取当前日期
             run: |
               echo "NOW=$(date +%F-%H%M)" >> $GITHUB_ENV
               echo "NOWWEB=$(date +%Y%m%d)" >> $GITHUB_ENV
