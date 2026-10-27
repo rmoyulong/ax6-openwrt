@@ -30,7 +30,7 @@ jobs:
 
             - name: 检查脚本
               run: |
-                sudo -E apt -yqq install dos2unix binutils bzip2 diff find flex gawk gcc-6+ getopt grep install libc-dev libz-dev make4.1+ perl python3.8+ rsync subversion unzip which
+                sudo -E apt -yqq install dos2unix
                 dos2unix ./Scripts/*.sh
                 chmod +x ./Scripts/*.sh
                   
