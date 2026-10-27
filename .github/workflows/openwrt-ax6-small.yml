@@ -28,6 +28,20 @@ jobs:
             - name: 检查
               uses: actions/checkout@v6.0.2
 
+            - name: 检查脚本
+              run: |
+                dos2unix ./Scripts/*.sh
+                chmod +x ./Scripts/*.sh
+                  
+                #dos2unix ./soc/*.sh
+                #chmod +x ./soc/*.sh
+                  
+                dos2unix ./patch/*.sh
+                chmod +x ./patch/*.sh
+                  
+                dos2unix ./remove/*.sh
+                chmod +x ./remove/*.sh              
+
             - name: 解压 LLVM 预构建版本
               run: |
                 git clone $CORE_URL openwrt
