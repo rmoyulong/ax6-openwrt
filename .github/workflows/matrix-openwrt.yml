@@ -59,13 +59,13 @@ env:
 jobs:
   union_core:
     name: ${{ matrix.config_type }} 固件编译
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         config_type:
-          #- 6.1-tiny.config
-          - 6.1-diy.config
+          - 6.1-tiny.config
+          - 6.1-full.config
 
     steps:
       - name: 清理服务器空间(Ubuntu)
@@ -173,6 +173,12 @@ jobs:
             echo "CORE_tag_name=微型版" >> $GITHUB_ENV
             CORE_header="header/qualcommax_ipq807x_DEVICE_redmi_ax6-stock-small-openwrt.config"
             echo "CORE_header=$CORE_header" >> $GITHUB_ENV
+          elif [[ "${{ matrix.config_type }}" == "6.1-full.config" ]]; then
+            echo "CORE_tag_name=OPENCLASH版" >> $GITHUB_ENV
+            CORE_header="header/qualcommax_ipq807x_DEVICE_redmi_ax6-stock-openwrt.config"
+            echo "CORE_header=$CORE_header" >> $GITHUB_ENV
+            CORE_DIY_P4_SH="openwrt-ax6.sh"
+            echo "CORE_DIY_P4_SH=$CORE_DIY_P4_SH" >> $GITHUB_ENV            
           else
              echo "没有选择编译任何类型"
              exit 1
