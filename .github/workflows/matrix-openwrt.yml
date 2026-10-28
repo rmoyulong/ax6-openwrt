@@ -64,8 +64,8 @@ jobs:
       fail-fast: false
       matrix:
         config_type:
-          - 6.1-tiny.config
-          - 6.1-full.config
+          #- 6.1-tiny.config
+          #- 6.1-full.config
           - 6.1-diy.config
 
     steps:
