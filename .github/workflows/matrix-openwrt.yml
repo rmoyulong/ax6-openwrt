@@ -66,6 +66,7 @@ jobs:
         config_type:
           - 6.1-tiny.config
           - 6.1-full.config
+          - 6.1-diy.config
 
     steps:
       - name: 清理服务器空间(Ubuntu)
