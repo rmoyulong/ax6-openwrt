@@ -49,6 +49,8 @@ cp -rf ./coolsnowwolf/libs/libffi package
                 
 rm -rf coolsnowwolf
 
+rm -rf package/QModem/driver/quectel_MHI
+
 ./scripts/feeds install -a
 
 cd package
