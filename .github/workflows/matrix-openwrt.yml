@@ -59,13 +59,14 @@ env:
 jobs:
   union_core:
     name: ${{ matrix.config_type }} 固件编译
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         config_type:
           - 6.1-tiny.config
-          - 6.1-diy.config
+          - 6.1-full.config
+          #- 6.1-diy.config
 
     steps:
       - name: 清理服务器空间(Ubuntu)
@@ -104,7 +105,7 @@ jobs:
         run: |
           echo "警告⚠"
           echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
-          echo -e "已知CPU型号（降序）： 9V74 7763，8370C，8272CL，8171M，E5-2673 \n"
+          echo -e "已知CPU型号（降序）：  9V45 9V74 7763，8370C，8272CL，8171M，E5-2673 \n"
           echo "--------------------------CPU信息--------------------------"
           echo "CPU物理数量：$(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
           echo -e "CPU核心信息：$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
@@ -124,7 +125,7 @@ jobs:
           sudo -E apt -yqq autoremove --purge
           sudo -E apt -yqq autoclean
           sudo -E apt -yqq clean
-          sudo -E apt -yqq install dos2unix libfuse-dev libxml2 python3-setools python3-setuptools libffi-dev pkg-config lib32z1-dev libpcre3 libpcre3-dev
+          sudo -E apt -yqq install dos2unix libfuse-dev libxml2-dev python3-setools python3-setuptools libffi-dev pkg-config lib32z1-dev libpcre2-dev
           sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_environment.sh)'
           
           sudo -E systemctl daemon-reload
@@ -173,6 +174,12 @@ jobs:
             echo "CORE_tag_name=微型版" >> $GITHUB_ENV
             CORE_header="header/qualcommax_ipq807x_DEVICE_redmi_ax6-stock-small-openwrt.config"
             echo "CORE_header=$CORE_header" >> $GITHUB_ENV
+          elif [[ "${{ matrix.config_type }}" == "6.1-full.config" ]]; then
+            echo "CORE_tag_name=OPENCLASH版" >> $GITHUB_ENV
+            CORE_header="header/qualcommax_ipq807x_DEVICE_redmi_ax6-stock-openwrt.config"
+            echo "CORE_header=$CORE_header" >> $GITHUB_ENV
+            CORE_DIY_P4_SH="patch/openwrt-ax6.sh"
+            echo "CORE_DIY_P4_SH=$CORE_DIY_P4_SH" >> $GITHUB_ENV            
           else
              echo "没有选择编译任何类型"
              exit 1
@@ -348,13 +355,9 @@ jobs:
           make download -j$(( $(nproc) * 2 ))
           find dl -size -1k -exec rm -f {} \;
 
-          if [[ "${{ matrix.config_type }}" == "6.1-diy.config" ]]; then
-            make package/libs/libffi/compile V=s
-          fi
-
       - name: 编译固件
         working-directory: ./openwrt
-        run: |     
+        run: |  
           echo -e "$(nproc) thread compile"
           make -j$(( $(nproc) + 1 )) || make -j1 V=s
           echo "status=success" >> $GITHUB_OUTPUT
