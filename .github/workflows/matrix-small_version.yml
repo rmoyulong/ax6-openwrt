@@ -1,0 +1,400 @@
+#========================================================================================================================
+# https://github.com/ophub/amlogic-s9xxx-openwrt
+# Description: Use Releases file to packaging
+# Cron: min (0 - 59) / hour (0 - 23) / day of month (1 - 31) / month (1 - 12) / day of week (0 - 6)(Sunday - Saturday)
+#========================================================================================================================
+name: ax6-微型版【三联编】
+
+on:
+  #对应的是 UTC 时间，需要转换，0 代表北京时间8点，每个月2日/15日12点编译一次
+  #关闭则手动编译
+  workflow_dispatch:
+
+env:
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+  CORE_TARGET: Redmi-AX6
+  CORE_NAME: Redmi-AX6
+  CORE_THEME: material
+  CORE_IP: 192.168.31.1
+  CORE_PW: password
+  ################################
+  #前置补丁 没有执行cd openwrt 在【更新订阅源】前执行
+  CORE_patch: false
+  ################################
+  #后置补丁 没有执行cd openwrt  在【更新订阅源】后执行
+  CORE_patch_after: patch/false
+  # 通用脚本 -- Scripts  目录 不执行: false 已经执行cd openwrt
+  CORE_DIY_P1_SH: Scripts/false
+  CORE_DIY_P2_SH: Scripts/Settings.sh
+  #####################################
+  #固件初始设置files 远程公用files文件夹下载 不适用设置为: false
+  CORE_DIY_P3_SH: Scripts/universal_init.sh
+  #######################################
+  #openclash    有false则不执行
+  CORE_DIY_P4_SH: Scripts/false
+  CORE_LINUX: 6.6.30
+  # 固件初始设置 -- patch 目录 目录不存在就不执行
+  CORE_FILES: patch/ax6/files
+  #feeds.conf.default  -- patch 目录 使用默认的：false
+  CORE_feeds_conf: patch/false
+  ###############################
+  #openclash内核类型 CORE_DIY_P4_SH设置才会生效
+  CORE_META: openclash
+  # 修正files配置文件脚本 -- remove  目录 不执行: false 已经执行cd openwrt
+  CORE_Files_SH: remove/edit_files.sh
+  OP_router: 主路由
+  ################################################
+  ##下方变量需要动态设置
+  #CORE_tag_name: ${{inputs.CORE_tag_name}}
+  #CORE_config: Config/${{inputs.CORE_config}}
+  #CORE_header: header/qualcommax_ipq807x_DEVICE_redmi_ax6-stock.config
+  TZ: Asia/Shanghai
+
+jobs:
+  union_core:
+    name: ${{ matrix.config_type }} 固件编译
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # ---- LiBwrt/LibWrt ----
+          - config_type: LibWrt
+            CORE_URL: https://github.com/LiBwrt/LibWrt
+            #源码版本
+            CORE_BRANCH: 25.12-nss
+            # 删除不兼容的插件 -- remove 目录 不执行: false 已经执行cd openwrt
+            CORE_remove: Scripts/setup.sh
+          # ---- AgustinLorenzo/openwrt ----
+          - config_type: AgustinLorenzo
+            CORE_URL: https://github.com/AgustinLorenzo/openwrt
+            #源码版本
+            CORE_BRANCH: main_nss
+            # 删除不兼容的插件 -- remove 目录 不执行: false 已经执行cd openwrt
+            CORE_remove: Scripts/setup1.sh
+          # ---- LiBwrt/LibWrt ----
+          - config_type: VIKINGYFY
+            CORE_URL: https://github.com/VIKINGYFY/immortalwrt
+            #源码版本
+            CORE_BRANCH: main
+            # 删除不兼容的插件 -- remove 目录 不执行: false 已经执行cd openwrt
+            CORE_remove: Scripts/setup.sh            
+            
+    steps:
+      - name: 清理服务器空间(Ubuntu)
+        uses: rmoyulong/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: true
+
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+        
+      - name: 项目检查
+        uses: actions/checkout@main
+
+      - name: 最大化编译空间
+        uses: rmoyulong/maximize-build-space@master
+        with:
+          root-reserve-mb: 2048
+          swap-size-mb: 1024
+          build-mount-path: /workdir
+          overprovision-lvm: 'true'
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+
+      - name: 检查分配的服务器性能
+        run: |
+          echo "警告⚠"
+          echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
+          echo -e "已知CPU型号（降序）：  9V45 9V74 7763，8370C，8272CL，8171M，E5-2673 \n"
+          echo "--------------------------CPU信息--------------------------"
+          echo "CPU物理数量：$(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
+          echo -e "CPU核心信息：$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
+          echo "--------------------------内存信息--------------------------"
+          echo "已安装内存详细信息："
+          echo -e "$(sudo lshw -short -C memory | grep GiB) \n"
+          echo "--------------------------硬盘信息--------------------------"
+          echo "硬盘数量：$(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT   
+
+      - name: 初始化编译环境
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo -E apt -yqq purge firefox
+          sudo -E apt -yqq update
+          sudo -E apt -yqq full-upgrade
+          sudo -E apt -yqq autoremove --purge
+          sudo -E apt -yqq autoclean
+          sudo -E apt -yqq clean
+          sudo -E apt -yqq install dos2unix libfuse-dev libxml2-dev python3-setools python3-setuptools libffi-dev pkg-config lib32z1-dev libpcre2-dev
+          sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_environment.sh)'
+          
+          sudo -E systemctl daemon-reload
+          sudo -E timedatectl set-timezone "Asia/Shanghai"
+          sudo -E systemctl daemon-reload
+          sudo timedatectl set-timezone "$TZ"
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
+          echo "status=success" >> ${GITHUB_OUTPUT}
+          df -Th              
+
+      - name: 初始化变量
+        run: |
+          export CORE_DATE=$(TZ=UTC-8 date +"%y.%m.%d_%H.%M.%S")
+          export CORE_SOURCE=$(echo ${{ matrix.CORE_URL }} | cut -d '/' -f 5-)
+          
+          echo "CORE_SOURCE=$CORE_SOURCE" >> $GITHUB_ENV
+          echo "CORE_TARGET=$CORE_TARGET" >> $GITHUB_ENV
+          echo "CORE_DATE=$CORE_DATE" >> $GITHUB_ENV
+          echo "CORE_PW=$CORE_PW" >> $GITHUB_ENV
+          echo "CORE_IP=$CORE_IP" >> $GITHUB_ENV
+          echo "CORE_URL=${{ matrix.CORE_URL }}" >> $GITHUB_ENV
+          echo "CORE_BRANCH=${{ matrix.CORE_BRANCH }}" >> $GITHUB_ENV
+          echo "CORE_patch=$CORE_patch" >> $GITHUB_ENV
+          echo "CORE_patch_after=$CORE_patch_after" >> $GITHUB_ENV
+          echo "CORE_DIY_P1_SH=$CORE_DIY_P1_SH" >> $GITHUB_ENV
+          echo "CORE_DIY_P2_SH=$CORE_DIY_P2_SH" >> $GITHUB_ENV
+          echo "CORE_DIY_P3_SH=$CORE_DIY_P3_SH" >> $GITHUB_ENV
+          echo "CORE_DIY_P4_SH=$CORE_DIY_P4_SH" >> $GITHUB_ENV
+          echo "CORE_remove=${{ matrix.CORE_remove }}" >> $GITHUB_ENV
+          echo "CORE_LINUX=$CORE_LINUX" >> $GITHUB_ENV
+          echo "CORE_FILES=$CORE_FILES" >> $GITHUB_ENV
+          echo "CORE_feeds_conf=$CORE_feeds_conf" >> $GITHUB_ENV
+          echo "CORE_THEME=$CORE_THEME" >> $GITHUB_ENV
+          echo "CORE_META=$CORE_META" >> $GITHUB_ENV
+          echo "CORE_Files_SH=$CORE_Files_SH" >> $GITHUB_ENV
+          echo "OP_router=$OP_router" >> $GITHUB_ENV
+          
+          CORE_config="Config/6.1-diy.config"
+          echo "CORE_config=$CORE_config" >> $GITHUB_ENV
+          
+          echo "CORE_META: $CORE_META"
+          echo "CORE_IP: $CORE_IP"
+          echo "CORE_THEME: $CORE_THEME"
+          echo "OP_router: $OP_router"
+          
+          # 使用正则表达式校验IP地址格式是否符合规范
+          if [[ $CORE_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "IP地址 $CORE_IP 符合规范。"
+          else
+            echo "IP地址 $CORE_IP 不符合规范。"
+            exit 1
+          fi
+  
+      - name: 检查脚本
+        run: |
+          dos2unix ./Scripts/*.sh
+          chmod +x ./Scripts/*.sh
+          
+          #dos2unix ./soc/*.sh
+          #chmod +x ./soc/*.sh
+          
+          dos2unix ./patch/*.sh
+          chmod +x ./patch/*.sh
+          
+          dos2unix ./remove/*.sh
+          chmod +x ./remove/*.sh
+          
+
+      - name: 克隆源码库
+        id: codes
+        working-directory: /workdir        
+        run: |
+          REPO_URL="${{ matrix.CORE_URL }}"
+          REPO_BRANCH="${{ matrix.CORE_BRANCH }}"
+          
+          df -hT $PWD
+          git clone -q --single-branch --depth=1 --branch=${REPO_BRANCH} ${REPO_URL} openwrt
+          ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+  
+      - name: 加载自定义订阅源
+        run: |
+          cd openwrt
+          
+          if [[ "${{ env.CORE_feeds_conf }}" == *"false"* ]]; then
+            echo "使用默认feeds.conf.default文件"
+          else
+            cp -rf $GITHUB_WORKSPACE/${{ env.CORE_feeds_conf }} ./feeds.conf.default
+          fi
+          
+      - name: 前置补丁
+        run: |
+          if [[ "${{ env.CORE_patch }}" == *"false"* ]]; then
+            echo "不需要打前置补丁"
+          else
+            ${GITHUB_WORKSPACE}/${CORE_patch}
+          fi
+
+      - name: 启动缓存[第二次起生效]
+        uses: rmoyulong/cachewrtbuild@main
+        with:
+          ccache: 'true'
+          prefix: ${{ github.workspace }}/openwrt
+          mixkey: ${{ env.CORE_SOURCE }}/tree/${{ env.CORE_TARGET }}?device=${{ env.CORE_header }}-${{ env.CORE_config }}
+          
+      - name: 更新订阅源
+        run: |
+          cd openwrt
+          
+          if [[ "${{ env.CORE_DIY_P1_SH }}" == *"false"* ]]; then
+            echo "不需要执行 CORE_DIY_P1_SH"
+          else
+            ${GITHUB_WORKSPACE}/${CORE_DIY_P1_SH}
+          fi          
+          echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+          
+      - name: 后置补丁
+        run: |
+          if [[ "${{ env.CORE_patch_after }}" == *"false"* ]]; then
+            echo "不需要打后置补丁"
+          else
+            ${GITHUB_WORKSPACE}/${CORE_patch_after}
+          fi
+         
+      - name: 通用脚本
+        run: |
+          cd openwrt
+          
+          curl -L -o package/base-files/files/etc/banner https://raw.githubusercontent.com/rmoyulong/AX6-Actions_Lede/master/ax6/cats_banner
+          ${GITHUB_WORKSPACE}/${CORE_DIY_P2_SH} "${{ env.CORE_IP }}" "${{ env.CORE_NAME }}" "${{ env.CORE_THEME }}" "${{ env.CORE_SOURCE }}"
+          
+          if [[ "${{ env.CORE_DIY_P3_SH }}" == *"false"* ]]; then
+            echo "不需要执行 CORE_DIY_P3_SH"
+          else
+            ${GITHUB_WORKSPACE}/${CORE_DIY_P3_SH} "${CORE_FILES}" "${CORE_header}" "${{ env.CORE_SOURCE }}"
+          fi
+          
+          if [[ "${{ env.CORE_DIY_P4_SH }}" == *"false"* ]]; then
+            echo "不需要执行 CORE_DIY_P4_SH"
+          else
+            ${GITHUB_WORKSPACE}/${CORE_DIY_P4_SH} "${{ env.CORE_META }}" "${{ env.CORE_IP }}"
+          fi 
+
+      - name: 删除冲突的插件
+        run: |
+          cd openwrt
+          
+          if [[ "${{ env.CORE_remove }}" == *"false"* ]]; then
+            echo "不需要删除冲突的插件"
+          else
+            ${GITHUB_WORKSPACE}/${CORE_remove}
+          fi
+          
+      - name: 拷贝编译配置文件和插件初始化文件
+        run: |
+          cd openwrt
+          
+          #如果files文件夹不存在，创建文件夹
+          if [ ! -d "./files" ]; then
+            mkdir ./files
+          fi
+          [ -e $GITHUB_WORKSPACE/$CORE_FILES ] && cp -rf $GITHUB_WORKSPACE/$CORE_FILES/* ./files
+          
+          rm -rf ./tmp* ./.config*
+          rm -rf ./.config
+          
+          if [[ "${{ env.CORE_header }}" == *"false"* ]]; then
+             echo "没有header config文件"
+             cat ${GITHUB_WORKSPACE}/${CORE_config}  > .config
+          else
+             cat $GITHUB_WORKSPACE/${CORE_header}  > .config
+             cat $GITHUB_WORKSPACE/${CORE_config} >> .config
+          fi
+          #cat .config          
+
+      - name: 修正files文件配置
+        run: |
+          cd openwrt
+          
+          if [[ "${{ env.CORE_Files_SH }}" == *"false"* ]]; then
+            echo "不需要执行 CORE_Files_SH"
+          else
+            ${GITHUB_WORKSPACE}/${CORE_Files_SH} "$OP_router" "$CORE_NAME" "${{ env.CORE_IP }}"
+            echo $OP_router
+            echo $CORE_header
+          fi
+          
+      - name: 下载编译依赖
+        working-directory: ./openwrt
+        run: |
+          make defconfig
+          make download -j$(( $(nproc) * 2 ))
+          find dl -size -1k -exec rm -f {} \;
+
+      - name: 编译固件
+        working-directory: ./openwrt
+        run: |     
+          echo -e "$(nproc) thread compile"
+          make -j$(( $(nproc) + 1 )) || make -j1 V=s
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV 
+
+      - name: 获得固件信息
+        run: |
+          cd openwrt/bin/targets/*/*
+          kword=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')
+          KERNEL=${kword%~*}
+          echo "KERNEL=$KERNEL" >> $GITHUB_ENV
+          cat sha256sums
+          
+      - name: 整理固件
+        run: |
+          cd openwrt && mkdir ./upload
+          
+          rm -rf $(find ./bin/targets/ -iregex ".*\(json\|manifest\|buildinfo\|sha256sums\|packages\)$")
+          cp -rf $(find ./bin/targets/ -type f -iname "*.*") ./upload/
+          cp -rf ./.config ./upload/Config.txt
+          
+          export CORE_DATE=$(TZ=UTC-8 date +"%y.%m.%d_%H.%M.%S")
+          echo "CORE_DATE=$CORE_DATE" >> $GITHUB_ENV
+          show_tag_name=${{env.CORE_TARGET}}_${{ matrix.config_type }}_${{env.CORE_DATE}}
+          echo "show_tag_name=$show_tag_name" >> $GITHUB_ENV
+          #获得当前目录的路径信息
+          cd ./upload
+          echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+          
+          #如有.tar文件就转化为.gz
+          files=$(ls *.tar 2> /dev/null | wc -l)
+          if [ "$files" != "0" ]; then
+            gzip *.tar
+          fi
+          
+      - name: 生成标签，上传固件
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{env.show_tag_name}}
+          body: |
+            ====================🧊固件信息🧊=======================
+            ➦ 📒 固件名称：${{env.CORE_NAME}} ${{env.CORE_tag_name}}
+            ➦ 💻 固件平台：${{ env.CORE_TARGET }}
+            ➦ ⚽ 固件源码：${{ env.CORE_SOURCE }}
+            ➦ 💝 源码分支：${{ env.CORE_BRANCH }}
+            ➦ 🚀 内核版本：${{ env.KERNEL }}
+            ➦ 🌐 默认地址：${{env.CORE_IP}}
+            ➦ 🔑 默认密码：password            
+          artifacts: ${{ env.FIRMWARE }}/*
+          
+      - name: 清理Releases
+        uses: rmoyulong/delete-older-releases@master
+        with:
+          keep_latest: 16
+          delete_tags: true
+
+      - name: 清理Workflows
+        uses: rmoyulong/delete-workflow-runs@main
+        with:
+          retain_days: 0
+          keep_minimum_runs: 1
