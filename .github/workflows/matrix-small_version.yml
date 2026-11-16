@@ -17,7 +17,8 @@ env:
   CORE_THEME: material
   CORE_IP: 192.168.31.1
   CORE_PW: password
-  CORE_tag_name: 微型版（无科学）
+  CORE_tag_name: 微型版（无科学）  
+  CORE_config: Config/6.1-diy.config
   ################################
   #前置补丁 没有执行cd openwrt 在【更新订阅源】前执行
   CORE_patch: false
@@ -46,8 +47,6 @@ env:
   OP_router: 主路由
   ################################################
   ##下方变量需要动态设置
-  #CORE_tag_name: ${{inputs.CORE_tag_name}}
-  #CORE_config: Config/${{inputs.CORE_config}}
   #CORE_header: header/qualcommax_ipq807x_DEVICE_redmi_ax6-stock.config
   TZ: Asia/Shanghai
 
@@ -180,8 +179,6 @@ jobs:
           echo "CORE_META=$CORE_META" >> $GITHUB_ENV
           echo "CORE_Files_SH=$CORE_Files_SH" >> $GITHUB_ENV
           echo "OP_router=$OP_router" >> $GITHUB_ENV
-          
-          CORE_config="Config/6.1-diy.config"
           echo "CORE_config=$CORE_config" >> $GITHUB_ENV
           
           echo "CORE_META: $CORE_META"
