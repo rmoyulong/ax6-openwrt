@@ -17,6 +17,7 @@ env:
   CORE_THEME: material
   CORE_IP: 192.168.31.1
   CORE_PW: password
+  CORE_tag_name: 微型版（无科学）
   ################################
   #前置补丁 没有执行cd openwrt 在【更新订阅源】前执行
   CORE_patch: false
@@ -65,6 +66,7 @@ jobs:
             CORE_BRANCH: 25.12-nss
             # 删除不兼容的插件 -- remove 目录 不执行: false 已经执行cd openwrt
             CORE_remove: Scripts/setup.sh
+            CORE_header: header/qualcommax_ipq807x_DEVICE_redmi_ax6-stock-small.config
           # ---- AgustinLorenzo/openwrt ----
           - config_type: AgustinLorenzo
             CORE_URL: https://github.com/AgustinLorenzo/openwrt
@@ -72,13 +74,15 @@ jobs:
             CORE_BRANCH: main_nss
             # 删除不兼容的插件 -- remove 目录 不执行: false 已经执行cd openwrt
             CORE_remove: Scripts/setup1.sh
+            CORE_header: header/qualcommax_ipq807x_DEVICE_redmi_ax6-stock-small-openwrt.config
           # ---- LiBwrt/LibWrt ----
           - config_type: VIKINGYFY
             CORE_URL: https://github.com/VIKINGYFY/immortalwrt
             #源码版本
             CORE_BRANCH: main
             # 删除不兼容的插件 -- remove 目录 不执行: false 已经执行cd openwrt
-            CORE_remove: Scripts/setup.sh            
+            CORE_remove: Scripts/setup.sh
+            CORE_header: header/VIKINGYFY_ipq807x_DEVICE_redmi_ax6-stock-small.config
             
     steps:
       - name: 清理服务器空间(Ubuntu)
@@ -161,13 +165,14 @@ jobs:
           echo "CORE_IP=$CORE_IP" >> $GITHUB_ENV
           echo "CORE_URL=${{ matrix.CORE_URL }}" >> $GITHUB_ENV
           echo "CORE_BRANCH=${{ matrix.CORE_BRANCH }}" >> $GITHUB_ENV
+          echo "CORE_header=${{ matrix.CORE_header }}" >> $GITHUB_ENV
+          echo "CORE_remove=${{ matrix.CORE_remove }}" >> $GITHUB_ENV
           echo "CORE_patch=$CORE_patch" >> $GITHUB_ENV
           echo "CORE_patch_after=$CORE_patch_after" >> $GITHUB_ENV
           echo "CORE_DIY_P1_SH=$CORE_DIY_P1_SH" >> $GITHUB_ENV
           echo "CORE_DIY_P2_SH=$CORE_DIY_P2_SH" >> $GITHUB_ENV
           echo "CORE_DIY_P3_SH=$CORE_DIY_P3_SH" >> $GITHUB_ENV
           echo "CORE_DIY_P4_SH=$CORE_DIY_P4_SH" >> $GITHUB_ENV
-          echo "CORE_remove=${{ matrix.CORE_remove }}" >> $GITHUB_ENV
           echo "CORE_LINUX=$CORE_LINUX" >> $GITHUB_ENV
           echo "CORE_FILES=$CORE_FILES" >> $GITHUB_ENV
           echo "CORE_feeds_conf=$CORE_feeds_conf" >> $GITHUB_ENV
