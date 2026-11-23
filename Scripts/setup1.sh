@@ -6,7 +6,7 @@ source $GITHUB_WORKSPACE/Scripts/functions.sh
 
 rm -rf feeds/luci/applications/luci-app-homeproxy
 #merge_package main https://github.com/VIKINGYFY/packages package luci-app-homeproxy
-merge_package master https://github.com/immortalwrt/homeproxy package luci-app-homeproxy
+git clone https://github.com/immortalwrt/homeproxy package/luci-app-homeproxy
 
 rm -rf feeds/luci/applications/luci-app-amlogic
 git clone https://github.com/ophub/luci-app-amlogic package/luci-app-amlogic
